@@ -1,4 +1,4 @@
-import { Component, useEffect, useRef } from "react";
+import { Component } from "react";
 import { AudioVisualiser } from "./AudioVisualizer.tsx";
 
 type AudioAnalyserProps = {
