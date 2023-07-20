@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { AudioAnalyser } from "./components/AudioAnalyser.tsx";
 
-// import style from "./AudioUpload.module.scss";
+import "./App.css";
+import AudioAnalyser from "./components/AudioAnalyser.tsx";
 
 const AudioUpload: React.FC = () => {
   const [audio, setAudio] = useState<MediaStream | null>(null);
@@ -23,8 +23,12 @@ const AudioUpload: React.FC = () => {
     setAudio(null);
   }
 
-  const onClickStartRecording = () => {
-    getMicrophone();
+  const onClickStartRecording = async () => {
+    try {
+      await getMicrophone();
+    } catch (error) {
+      console.log("Cannot get access to microphone", error);
+    }
   };
 
   const onClickStopRecording = () => {
@@ -32,11 +36,15 @@ const AudioUpload: React.FC = () => {
   };
 
   return (
-    <>
-      <button onClick={onClickStartRecording}>Start Recording</button>
-      <button onClick={onClickStopRecording}>Stop Recording</button>
-      {audio && <AudioAnalyser audio={audio} />}
-    </>
+    <div className="container">
+      <div className="canvas__container">
+        <AudioAnalyser audio={audio} />
+      </div>
+      <div className="buttons__container">
+        <button onClick={onClickStartRecording}>Start Recording</button>
+        <button onClick={onClickStopRecording}>Stop Recording</button>
+      </div>
+    </div>
   );
 };
 

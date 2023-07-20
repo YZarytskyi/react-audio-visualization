@@ -1,52 +1,62 @@
-import { Component } from "react";
+import { useState, useEffect, useRef, FC } from "react";
 import { AudioVisualiser } from "./AudioVisualizer.tsx";
 
-type AudioAnalyserProps = {
+interface AudioAnalyserProps {
   audio: MediaStream | null;
-};
-
-type AudioAnalyserState = {
-  audioData: Uint8Array;
-};
-
-export class AudioAnalyser extends Component<
-  AudioAnalyserProps,
-  AudioAnalyserState
-> {
-  audioContext: AudioContext;
-  analyser: AnalyserNode;
-  dataArray: Uint8Array;
-  source: MediaStreamAudioSourceNode;
-  rafId: number;
-
-  constructor(props) {
-    super(props);
-    this.state = { audioData: new Uint8Array(0) };
-    this.tick = this.tick.bind(this);
-  }
-
-  componentDidMount() {
-    this.audioContext = new window.AudioContext();
-    this.analyser = this.audioContext.createAnalyser();
-    this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
-    this.source = this.audioContext.createMediaStreamSource(this.props.audio);
-    this.source.connect(this.analyser);
-    this.rafId = requestAnimationFrame(this.tick);
-  }
-
-  tick() {
-    this.analyser.getByteTimeDomainData(this.dataArray);
-    this.setState({ audioData: this.dataArray });
-    this.rafId = requestAnimationFrame(this.tick);
-  }
-
-  componentWillUnmount() {
-    cancelAnimationFrame(this.rafId);
-    this.analyser.disconnect();
-    this.source.disconnect();
-  }
-
-  render() {
-    return <AudioVisualiser audioData={this.state.audioData} />;
-  }
 }
+
+const AudioAnalyser: FC<AudioAnalyserProps> = ({ audio }) => {
+  const [audioData, setAudioData] = useState(new Uint8Array(0));
+  const audioContext = useRef<AudioContext | null>(null);
+  const analyser = useRef<AnalyserNode | null>(null);
+  const dataArray = useRef(new Uint8Array(0));
+  const source = useRef<MediaStreamAudioSourceNode | null>(null);
+  const rafId = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!audio) {
+      setAudioData(new Uint8Array(0));
+      return;
+    }
+
+    const initAudio = () => {
+      try {
+        audioContext.current = new window.AudioContext();
+        analyser.current = audioContext.current.createAnalyser();
+        dataArray.current = new Uint8Array(analyser.current.frequencyBinCount);
+        source.current = audioContext.current.createMediaStreamSource(audio);
+        source.current.connect(analyser.current);
+
+        const tick = () => {
+          analyser?.current?.getByteTimeDomainData(dataArray.current);
+          setAudioData(new Uint8Array(dataArray.current));
+          rafId.current = requestAnimationFrame(tick);
+        };
+        tick();
+      } catch (error) {
+        console.error("Error initializing audio:", error);
+      }
+    };
+
+    initAudio();
+
+    return () => {
+      if (rafId.current) {
+        cancelAnimationFrame(rafId.current);
+      }
+      if (analyser.current) {
+        analyser.current.disconnect();
+      }
+      if (source.current) {
+        source.current.disconnect();
+      }
+      if (audioContext.current) {
+        audioContext?.current.close();
+      }
+    };
+  }, [audio]);
+
+  return <AudioVisualiser audioData={audioData} />;
+};
+
+export default AudioAnalyser;
