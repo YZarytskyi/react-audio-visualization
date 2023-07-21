@@ -23,6 +23,7 @@ export const AudioVisualiser: FC<AudioVisualiserProps> = ({ audioData }) => {
     if (!context) return;
 
     if (audioData.length) {
+      const speed = 0.5;
       const maxPick = Math.max(...audioData);
       const picksLength = picksRef.current.length;
       const newPick = {
@@ -30,7 +31,7 @@ export const AudioVisualiser: FC<AudioVisualiserProps> = ({ audioData }) => {
         lineToY: (maxPick / 255) * height,
       };
 
-      if (picksRef.current.length > width / 2) {
+      if (picksRef.current.length > width / 2 / speed) {
         picksRef.current.shift();
       }
       picksRef.current.push(newPick);
@@ -44,30 +45,23 @@ export const AudioVisualiser: FC<AudioVisualiserProps> = ({ audioData }) => {
       context.stroke();
 
       context.beginPath();
-      context.moveTo(0, height / 2);
-      context.lineTo(width, height / 2);
-      context.stroke();
-
-      context.beginPath();
       context.lineWidth = 1;
       context.strokeStyle = "#FFFFFF";
 
-      let x = width / 2 - picksLength;
+      let x = width / 2 - picksLength * speed;
       for (const pick of picksRef.current) {
         context.moveTo(x, pick.moveToY);
         context.lineTo(x, pick.lineToY);
-        x += 1;
+        x += speed;
       }
       context.stroke();
-      context.closePath();
     } else {
       context.clearRect(0, 0, width, height);
       picksRef.current = [];
-      context.clearRect(0, 0, width, height);
       context.beginPath();
       context.lineWidth = 1;
       context.strokeStyle = "#494848";
-      context.moveTo(0, height / 2);
+      context.moveTo(width / 2, height / 2);
       context.lineTo(width, height / 2);
       context.stroke();
     }
