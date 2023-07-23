@@ -1,90 +1,117 @@
-import { FC, useRef } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 
-interface PickItem {
-  moveToY: number;
-  lineToY: number;
-}
+import { drawBlob, drawOnCanvas } from "../helpers/drawOnCanvas.ts";
+import { getBarsData } from "../helpers/getBarsData.ts";
+
+import { Controls, PickItem } from "../types/types.ts";
+import { formatTime } from "../helpers/formatTime.ts";
 
 interface AudioVisualiserProps {
-  audioData: Uint8Array;
+  controls: Controls;
+  speed?: number;
+  height?: number;
+  width?: number;
+  backgroundColor?: string;
+  mainLineColor?: string;
+  secondaryLineColor?: string;
+  barWidth?: number;
+  gap?: number;
+  animateCurrentPick?: boolean;
 }
 
-export const AudioVisualiser: FC<AudioVisualiserProps> = ({ audioData }) => {
+export const AudioVisualiser: FC<AudioVisualiserProps> = ({
+  controls: { audioData, isRecording, recordedBlob, recordingTime },
+  speed = 0.5,
+  height = 300,
+  width = 1700,
+  backgroundColor = "transparent",
+  mainLineColor = "#FFFFFF",
+  secondaryLineColor = "#494848",
+  barWidth = 1,
+  gap = 0,
+  animateCurrentPick = true,
+}) => {
+  const [duration, setDuration] = useState(0);
+
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const picksRef = useRef<PickItem[]>([]);
+  const indexRef = useRef<number>(0);
 
-  function draw() {
+  useEffect(() => {
+    if (!recordedBlob || !canvasRef.current) return;
+
+    const processBlob = async () => {
+      const audioBuffer = await recordedBlob.arrayBuffer();
+      const audioContext = new AudioContext();
+      await audioContext.decodeAudioData(audioBuffer, (buffer) => {
+        setDuration(buffer.duration);
+        const barsData = getBarsData(buffer, height, width, barWidth, gap);
+
+        if (!canvasRef.current) return;
+
+        drawBlob(
+          barsData,
+          canvasRef.current,
+          barWidth,
+          gap * 2,
+          backgroundColor,
+          mainLineColor,
+          secondaryLineColor,
+          0,
+          duration,
+        );
+      });
+    };
+
+    processBlob();
+  }, [recordedBlob]);
+
+  useEffect(() => {
     if (!canvasRef.current) return;
+    drawOnCanvas({
+      audioData,
+      index: indexRef.current,
+      canvas: canvasRef.current,
+      isRecording,
+      backgroundColor,
+      mainLineColor,
+      picks: picksRef.current,
+      secondaryLineColor,
+      speed,
+      barWidth,
+      animateCurrentPick,
+    });
+  }, [canvasRef.current]);
 
-    const canvas = canvasRef.current;
-    const height = canvas.height;
-    const width = canvas.width;
-    const context = canvas.getContext("2d");
-    if (!context) return;
-
-    if (audioData.length) {
-      const speed = 0.5;
-      const maxPick = Math.max(...audioData);
-      const picksLength = picksRef.current.length;
-      const newPick = {
-        moveToY: height - (maxPick / 255) * height,
-        lineToY: (maxPick / 255) * height,
-      };
-
-      if (picksRef.current.length > width / 2 / speed) {
-        picksRef.current.shift();
-      }
-      picksRef.current.push(newPick);
-
-      context.clearRect(0, 0, width, height);
-
-      context.beginPath();
-      context.strokeStyle = "#494848";
-      context.moveTo(width / 2, height / 2);
-      context.lineTo(width, height / 2);
-      context.stroke();
-
-      context.beginPath();
-      context.lineWidth = 1;
-      context.strokeStyle = "#FFFFFF";
-
-      let x = width / 2 - picksLength * speed;
-      for (const pick of picksRef.current) {
-        context.moveTo(x, pick.moveToY);
-        context.lineTo(x, pick.lineToY);
-        x += speed;
-      }
-      context.stroke();
+  if (canvasRef.current && !recordedBlob) {
+    if (indexRef.current >= (gap / speed) * 2 * barWidth) {
+      indexRef.current = 0;
     } else {
-      context.clearRect(0, 0, width, height);
-      picksRef.current = [];
-      context.beginPath();
-      context.lineWidth = 1;
-      context.strokeStyle = "#494848";
-      context.moveTo(width / 2, height / 2);
-      context.lineTo(width, height / 2);
-      context.stroke();
+      indexRef.current += 1;
     }
+
+    drawOnCanvas({
+      audioData,
+      index: indexRef.current,
+      canvas: canvasRef.current,
+      picks: picksRef.current,
+      isRecording,
+      backgroundColor,
+      mainLineColor,
+      secondaryLineColor,
+      speed,
+      barWidth,
+      animateCurrentPick,
+    });
   }
 
-  draw();
-
-  return <canvas height="300" width="1500" ref={canvasRef} />;
+  return (
+    <>
+      <canvas height={height} width={width} ref={canvasRef}>
+        Your browser does not support HTML5 Canvas.
+      </canvas>
+      {isRecording && <p>Time: {formatTime(recordingTime)}</p>}
+      {duration ? <p>Duration: {duration}s</p> : null}
+    </>
+  );
 };
-
-//Central Line
-
-// context.strokeStyle = "#968383";
-// context.beginPath();
-// context.moveTo(width / 2, height - 70);
-// context.lineTo(width / 2, 70);
-// context.stroke();
-// context.closePath();
-
-// Draw line downwards
-// context.moveTo(width / 2, height / 2);
-// context.lineTo(width / 2, (maxPick / 255) * height);
-//
-// Draw line upwards
-// context.moveTo(width / 2, height / 2);
-// context.lineTo(width / 2, height - (maxPick / 255) * height);

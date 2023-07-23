@@ -1,26 +1,48 @@
-import React from "react";
+import React, { useEffect } from "react";
 
-import AudioAnalyser from "./components/AudioAnalyser.tsx";
+import { AudioVisualiser } from "./components/AudioVisualizer.tsx";
 import { useVoiceVisualization } from "./hooks/useVoiceVisualization.tsx";
 
 import "./App.css";
 
 const AudioUpload: React.FC = () => {
-  const { isRecording, audioStream, startRecording, stopRecording } =
-    useVoiceVisualization();
+  const recorderControls = useVoiceVisualization();
 
-  console.log(isRecording);
+  const {
+    isRecording,
+    isPaused,
+    recordedBlob,
+    startRecording,
+    pauseRecording,
+    stopRecording,
+    saveAudioFile,
+  } = recorderControls;
+
+  useEffect(() => {
+    if (!recordedBlob) return;
+
+    const url = URL.createObjectURL(recordedBlob);
+    const audio = document.createElement("audio");
+    audio.src = url;
+    audio.controls = true;
+    document.body.appendChild(audio);
+  }, [recordedBlob]);
+
+  const onClickStartRecording = () => {
+    isRecording ? pauseRecording() : startRecording();
+  };
 
   return (
     <div className="container">
       <div className="canvas__container">
-        <AudioAnalyser audio={audioStream} />
+        <AudioVisualiser controls={recorderControls} />
       </div>
       <div className="buttons__container">
-        <button onClick={startRecording}>{`${
-          isRecording ? "Pause" : "Start"
+        <button onClick={onClickStartRecording}>{`${
+          isRecording && !isPaused ? "Pause" : "Start"
         } Recording`}</button>
         <button onClick={stopRecording}>Stop Recording</button>
+        <button onClick={saveAudioFile}>Save Audio File</button>
       </div>
     </div>
   );
