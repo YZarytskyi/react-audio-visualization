@@ -88,9 +88,7 @@ export function useVoiceVisualization(): Controls {
     return () => clearInterval(interval);
   }, [prevTime, isPaused, isRecording]);
 
-  function handleDataAvailable(event: BlobEvent) {
-    setRecordedBlob(event.data);
-  }
+  const handleDataAvailable = (event: BlobEvent) => setRecordedBlob(event.data);
 
   const startRecording = () => {
     setMediaRecorder(null);

@@ -1,10 +1,11 @@
 import { FC, useEffect, useRef, useState } from "react";
 
-import { drawBlob, drawOnCanvas } from "../helpers/drawOnCanvas.ts";
+import { drawOnCanvas } from "../helpers/drawOnCanvas.ts";
+import { drawByBlob } from "../helpers/drawByBlob.ts";
 import { getBarsData } from "../helpers/getBarsData.ts";
+import { formatTime } from "../helpers/formatTime.ts";
 
 import { Controls, PickItem } from "../types/types.ts";
-import { formatTime } from "../helpers/formatTime.ts";
 
 interface AudioVisualiserProps {
   controls: Controls;
@@ -27,20 +28,22 @@ export const AudioVisualiser: FC<AudioVisualiserProps> = ({
   backgroundColor = "transparent",
   mainLineColor = "#FFFFFF",
   secondaryLineColor = "#494848",
-  barWidth = 1,
-  gap = 0,
+  barWidth = 2,
+  gap = 1,
   animateCurrentPick = true,
 }) => {
   const [duration, setDuration] = useState(0);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const picksRef = useRef<PickItem[]>([]);
+  const picksRef = useRef<Array<PickItem | null>>([]);
   const indexRef = useRef<number>(0);
 
   useEffect(() => {
     if (!recordedBlob || !canvasRef.current) return;
 
     const processBlob = async () => {
+      picksRef.current = [];
+
       const audioBuffer = await recordedBlob.arrayBuffer();
       const audioContext = new AudioContext();
       await audioContext.decodeAudioData(audioBuffer, (buffer) => {
@@ -49,17 +52,16 @@ export const AudioVisualiser: FC<AudioVisualiserProps> = ({
 
         if (!canvasRef.current) return;
 
-        drawBlob(
+        drawByBlob({
           barsData,
-          canvasRef.current,
+          canvas: canvasRef.current,
           barWidth,
-          gap * 2,
+          gap,
           backgroundColor,
           mainLineColor,
           secondaryLineColor,
-          0,
           duration,
-        );
+        });
       });
     };
 
@@ -68,22 +70,7 @@ export const AudioVisualiser: FC<AudioVisualiserProps> = ({
 
   useEffect(() => {
     if (!canvasRef.current) return;
-    drawOnCanvas({
-      audioData,
-      index: indexRef.current,
-      canvas: canvasRef.current,
-      isRecording,
-      backgroundColor,
-      mainLineColor,
-      picks: picksRef.current,
-      secondaryLineColor,
-      speed,
-      barWidth,
-      animateCurrentPick,
-    });
-  }, [canvasRef.current]);
 
-  if (canvasRef.current && !recordedBlob) {
     if (indexRef.current >= (gap / speed) * 2 * barWidth) {
       indexRef.current = 0;
     } else {
@@ -103,7 +90,7 @@ export const AudioVisualiser: FC<AudioVisualiserProps> = ({
       barWidth,
       animateCurrentPick,
     });
-  }
+  }, [canvasRef.current, audioData]);
 
   return (
     <>
