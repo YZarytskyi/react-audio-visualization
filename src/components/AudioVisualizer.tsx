@@ -1,6 +1,6 @@
 import { FC, useEffect, useRef, useState } from "react";
 
-import { drawOnCanvas } from "../helpers/drawOnCanvas.ts";
+import { drawByLiveStream } from "../helpers/drawByLiveStream.ts";
 import { drawByBlob } from "../helpers/drawByBlob.ts";
 import { getBarsData } from "../helpers/getBarsData.ts";
 import { formatTime } from "../helpers/formatTime.ts";
@@ -17,6 +17,7 @@ interface AudioVisualiserProps {
   secondaryLineColor?: string;
   barWidth?: number;
   gap?: number;
+  rounded?: number;
   animateCurrentPick?: boolean;
 }
 
@@ -30,13 +31,39 @@ export const AudioVisualiser: FC<AudioVisualiserProps> = ({
   secondaryLineColor = "#494848",
   barWidth = 2,
   gap = 1,
+  rounded = 50,
   animateCurrentPick = true,
 }) => {
   const [duration, setDuration] = useState(0);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const picksRef = useRef<Array<PickItem | null>>([]);
-  const indexRef = useRef<number>(0);
+  const indexRef = useRef(0);
+
+  useEffect(() => {
+    if (!canvasRef.current) return;
+
+    if (indexRef.current >= (gap / speed) * 2 * barWidth) {
+      indexRef.current = 0;
+    } else {
+      indexRef.current += 1;
+    }
+
+    drawByLiveStream({
+      audioData,
+      index: indexRef.current,
+      canvas: canvasRef.current,
+      picks: picksRef.current,
+      isRecording,
+      backgroundColor,
+      mainLineColor,
+      secondaryLineColor,
+      speed,
+      barWidth,
+      rounded,
+      animateCurrentPick,
+    });
+  }, [canvasRef.current, audioData]);
 
   useEffect(() => {
     if (!recordedBlob || !canvasRef.current) return;
@@ -44,11 +71,12 @@ export const AudioVisualiser: FC<AudioVisualiserProps> = ({
     const processBlob = async () => {
       picksRef.current = [];
 
-      const audioBuffer = await recordedBlob.arrayBuffer();
-      const audioContext = new AudioContext();
-      await audioContext.decodeAudioData(audioBuffer, (buffer) => {
-        setDuration(buffer.duration);
+      try {
+        const audioBuffer = await recordedBlob.arrayBuffer();
+        const audioContext = new AudioContext();
+        const buffer = await audioContext.decodeAudioData(audioBuffer);
         const barsData = getBarsData(buffer, height, width, barWidth, gap);
+        setDuration(buffer.duration);
 
         if (!canvasRef.current) return;
 
@@ -60,37 +88,16 @@ export const AudioVisualiser: FC<AudioVisualiserProps> = ({
           backgroundColor,
           mainLineColor,
           secondaryLineColor,
+          rounded,
           duration,
         });
-      });
+      } catch (error) {
+        console.error("Error processing the audio blob:", error);
+      }
     };
 
-    processBlob();
+    void processBlob();
   }, [recordedBlob]);
-
-  useEffect(() => {
-    if (!canvasRef.current) return;
-
-    if (indexRef.current >= (gap / speed) * 2 * barWidth) {
-      indexRef.current = 0;
-    } else {
-      indexRef.current += 1;
-    }
-
-    drawOnCanvas({
-      audioData,
-      index: indexRef.current,
-      canvas: canvasRef.current,
-      picks: picksRef.current,
-      isRecording,
-      backgroundColor,
-      mainLineColor,
-      secondaryLineColor,
-      speed,
-      barWidth,
-      animateCurrentPick,
-    });
-  }, [canvasRef.current, audioData]);
 
   return (
     <>

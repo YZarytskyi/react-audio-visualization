@@ -13,7 +13,7 @@ const AudioUpload: React.FC = () => {
     isPaused,
     recordedBlob,
     startRecording,
-    pauseRecording,
+    togglePauseResumeRecording,
     stopRecording,
     saveAudioFile,
   } = recorderControls;
@@ -29,7 +29,7 @@ const AudioUpload: React.FC = () => {
   }, [recordedBlob]);
 
   const onClickStartRecording = () => {
-    isRecording ? pauseRecording() : startRecording();
+    isRecording ? togglePauseResumeRecording() : startRecording();
   };
 
   return (

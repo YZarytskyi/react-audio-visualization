@@ -1,8 +1,9 @@
-import { DrawOnCanvasParams, PickItem } from "../types/types.ts";
 import { getDataForCanvas } from "./getDataForCanvas.ts";
 import { paintLine } from "./paintLine.ts";
 
-export const drawOnCanvas = ({
+import { DrawByLiveStreamParams, PickItem } from "../types/types.ts";
+
+export const drawByLiveStream = ({
   audioData,
   index,
   canvas,
@@ -13,8 +14,9 @@ export const drawOnCanvas = ({
   barWidth,
   mainLineColor,
   secondaryLineColor,
+  rounded,
   animateCurrentPick,
-}: DrawOnCanvasParams) => {
+}: DrawByLiveStreamParams) => {
   const canvasData = getDataForCanvas({ canvas, backgroundColor });
   if (!canvasData) return;
 
@@ -24,6 +26,7 @@ export const drawOnCanvas = ({
     paintLine({
       context,
       color: secondaryLineColor,
+      rounded,
       x: width / 2 + barWidth / 2,
       y: height / 2 - 1,
       h: 2,
@@ -33,7 +36,6 @@ export const drawOnCanvas = ({
 
   if (audioData?.length && isRecording) {
     const maxPick = Math.max(...audioData);
-    const picksLength = picks.length;
     const newPick: PickItem | null =
       index === 0
         ? {
@@ -43,7 +45,7 @@ export const drawOnCanvas = ({
         : null;
 
     // quantity of picks enough for visualisation
-    if (picksLength > width / 2 / speed) {
+    if (picks.length > width / 2 / speed) {
       picks.pop();
     }
     picks.unshift(newPick);
@@ -54,21 +56,23 @@ export const drawOnCanvas = ({
     if (animateCurrentPick) {
       paintLine({
         context,
+        rounded,
         color: mainLineColor,
         x: width / 2,
         y: height - (maxPick / 255) * height,
-        h: height - (height - (maxPick / 255) * height) * 2,
+        h: -height + (maxPick / 255) * height * 2,
         w: barWidth,
       });
     }
 
     // picks visualisation
-    let x = width / 2; //width / 2 - barWidth
+    let x = width / 2; // width / 2 - barWidth
     picks.forEach((pick) => {
       if (pick) {
         paintLine({
           context,
           color: mainLineColor,
+          rounded,
           x,
           y: pick.startY,
           h: pick.height,
@@ -80,5 +84,4 @@ export const drawOnCanvas = ({
   } else {
     paintLineFromCenterToRight();
   }
-  return;
 };

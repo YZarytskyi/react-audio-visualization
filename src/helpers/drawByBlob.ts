@@ -12,13 +12,13 @@ export const drawByBlob = ({
   mainLineColor,
   secondaryLineColor,
   currentTime = 0,
+  rounded,
   duration,
 }: DrawByBlob): void => {
   const canvasData = getDataForCanvas({ canvas, backgroundColor });
   if (!canvasData) return;
 
-  const { context, height, width } = canvasData;
-  console.log(width);
+  const { context, height } = canvasData;
   const playedPercent = currentTime / duration;
 
   barsData.forEach((barData, i) => {
@@ -27,10 +27,11 @@ export const drawByBlob = ({
 
     paintLine({
       context,
-      color: played && secondaryLineColor ? secondaryLineColor : mainLineColor,
-      x: i * (barWidth + gap * 3),
+      color: played ? secondaryLineColor : mainLineColor,
+      rounded,
+      x: i * (barWidth + gap),
       y: height / 2 + barData.min,
-      h: height / 2 + barData.max - (height / 2 + barData.min),
+      h: barData.max - barData.min,
       w: barWidth,
     });
   });

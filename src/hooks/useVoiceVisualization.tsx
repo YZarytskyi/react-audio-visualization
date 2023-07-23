@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { Controls } from "../types/types.ts";
+
 import { getFileExtensionFromMimeType } from "../helpers/getFileExtensionFromMimeType.ts";
+
+import { Controls } from "../types/types.ts";
 
 export function useVoiceVisualization(): Controls {
   const [isRecording, setIsRecording] = useState(false);
@@ -21,66 +23,51 @@ export function useVoiceVisualization(): Controls {
   const rafIdRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!mediaRecorder || !isRecording) return;
-    mediaRecorder?.addEventListener("dataavailable", handleDataAvailable);
-    mediaRecorder?.start();
-  }, [mediaRecorder, isRecording]);
+    if (!isRecording) return;
 
-  useEffect(() => {
-    if (isRecording) {
-      if (audioContextRef.current && isPaused) return;
-      navigator.mediaDevices
-        .getUserMedia({ audio: true })
-        .then((stream) => {
-          audioContextRef.current = new window.AudioContext();
-          analyserRef.current = audioContextRef.current.createAnalyser();
-          dataArrayRef.current = new Uint8Array(
-            analyserRef.current.frequencyBinCount,
-          );
-          sourceRef.current =
-            audioContextRef.current.createMediaStreamSource(stream);
-          sourceRef.current.connect(analyserRef.current);
+    if (audioContextRef.current && isPaused) return;
+    navigator.mediaDevices
+      .getUserMedia({ audio: true })
+      .then((stream) => {
+        setAudioStream(stream);
+        audioContextRef.current = new window.AudioContext();
+        analyserRef.current = audioContextRef.current.createAnalyser();
+        dataArrayRef.current = new Uint8Array(
+          analyserRef.current.frequencyBinCount,
+        );
+        sourceRef.current =
+          audioContextRef.current.createMediaStreamSource(stream);
+        sourceRef.current.connect(analyserRef.current);
+        const mediaRecorder = new MediaRecorder(stream);
+        setMediaRecorder(mediaRecorder);
+        mediaRecorder?.addEventListener("dataavailable", handleDataAvailable);
+        mediaRecorder?.start();
 
-          if (!mediaRecorder) setMediaRecorder(new MediaRecorder(stream));
-
-          const tick = () => {
-            analyserRef.current!.getByteTimeDomainData(dataArrayRef.current!);
-            setAudioData(new Uint8Array(dataArrayRef.current!));
-            rafIdRef.current = requestAnimationFrame(tick);
-          };
-
-          tick();
-
-          setAudioStream(stream);
-        })
-        .catch((error) => {
-          console.error("Error starting audio recording:", error);
-        });
-    }
+        tick();
+      })
+      .catch((error) => {
+        console.error("Error starting audio recording:", error);
+      });
 
     return () => {
-      if (rafIdRef.current) {
-        cancelAnimationFrame(rafIdRef.current);
-      }
-      if (sourceRef.current) {
-        sourceRef.current.disconnect();
-      }
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+      if (sourceRef.current) sourceRef.current.disconnect();
       if (
         audioContextRef.current &&
         audioContextRef.current.state !== "closed"
       ) {
-        audioContextRef.current.close();
+        void audioContextRef.current.close();
       }
     };
-  }, [isRecording, isPaused]);
+  }, [isRecording]);
 
   useEffect(() => {
     if (!isRecording || isPaused) return;
 
     const updateTimer = () => {
-      const now = performance.now();
-      setRecordingTime((prev) => prev + (now - prevTime));
-      setPrevTime(now);
+      const timeNow = performance.now();
+      setRecordingTime((prev) => prev + (timeNow - prevTime));
+      setPrevTime(timeNow);
     };
 
     const interval = setInterval(updateTimer, 1000);
@@ -88,27 +75,41 @@ export function useVoiceVisualization(): Controls {
     return () => clearInterval(interval);
   }, [prevTime, isPaused, isRecording]);
 
+  const tick = () => {
+    analyserRef.current!.getByteTimeDomainData(dataArrayRef.current!);
+    setAudioData(new Uint8Array(dataArrayRef.current!));
+    rafIdRef.current = requestAnimationFrame(tick);
+  };
+
   const handleDataAvailable = (event: BlobEvent) => setRecordedBlob(event.data);
 
   const startRecording = () => {
+    if (isRecording) return;
+
     setMediaRecorder(null);
     setRecordedBlob(null);
     setIsRecording(true);
     setPrevTime(performance.now());
   };
 
-  const pauseRecording = () => {
+  const togglePauseResumeRecording = () => {
+    if (!isRecording) return;
+
     setIsPaused((prevPaused) => !prevPaused);
     if (mediaRecorder?.state === "recording") {
       mediaRecorder?.pause();
       setRecordingTime((prev) => prev + (performance.now() - prevTime));
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
     } else {
       mediaRecorder?.resume();
       setPrevTime(performance.now());
+      rafIdRef.current = requestAnimationFrame(tick);
     }
   };
 
   const stopRecording = () => {
+    if (!isRecording) return;
+
     audioStream?.getTracks().forEach((track) => track.stop());
     setIsRecording(false);
     setRecordingTime(0);
@@ -143,7 +144,7 @@ export function useVoiceVisualization(): Controls {
     recordedBlob,
     mediaRecorder,
     startRecording,
-    pauseRecording,
+    togglePauseResumeRecording,
     stopRecording,
     saveAudioFile,
   };

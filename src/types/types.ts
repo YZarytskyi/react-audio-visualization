@@ -11,7 +11,7 @@ export interface Controls {
   mediaRecorder: MediaRecorder | null;
   recordedBlob: Blob | null;
   startRecording: () => void;
-  pauseRecording: () => void;
+  togglePauseResumeRecording: () => void;
   stopRecording: () => void;
   saveAudioFile: () => void;
 }
@@ -21,7 +21,7 @@ export interface BarsData {
   min: number;
 }
 
-export interface DrawOnCanvasParams {
+export interface DrawByLiveStreamParams {
   audioData: Uint8Array;
   index: number;
   canvas: HTMLCanvasElement;
@@ -32,6 +32,7 @@ export interface DrawOnCanvasParams {
   barWidth: number;
   mainLineColor: string;
   secondaryLineColor: string;
+  rounded: number;
   animateCurrentPick: boolean;
 }
 
@@ -42,8 +43,9 @@ export interface DrawByBlob {
   gap: number;
   backgroundColor: string;
   mainLineColor: string;
-  secondaryLineColor?: string;
+  secondaryLineColor: string;
   currentTime?: number;
+  rounded: number;
   duration: number;
 }
 
@@ -55,6 +57,7 @@ export interface GetDataForCanvasParams {
 export interface PaintLineParams {
   context: CanvasRenderingContext2D;
   color: string;
+  rounded: number;
   x: number;
   y: number;
   w: number;
