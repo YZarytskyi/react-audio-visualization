@@ -43,7 +43,7 @@ export const AudioVisualiser: FC<AudioVisualiserProps> = ({
   useEffect(() => {
     if (!canvasRef.current) return;
 
-    if (indexRef.current >= (gap / speed) * 2 * barWidth) {
+    if (indexRef.current >= (gap / speed) * barWidth + barWidth * 1.7) {
       indexRef.current = 0;
     } else {
       indexRef.current += 1;

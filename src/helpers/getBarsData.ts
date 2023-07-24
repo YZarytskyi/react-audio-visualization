@@ -8,7 +8,7 @@ export const getBarsData = (
   gap: number,
 ): BarsData[] => {
   const bufferData = buffer.getChannelData(0);
-  const units = width / (barWidth + gap);
+  const units = width / (barWidth + gap * barWidth);
   const step = Math.floor(bufferData.length / units);
   const amp = height / 2;
 

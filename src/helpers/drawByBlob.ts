@@ -29,7 +29,7 @@ export const drawByBlob = ({
       context,
       color: played ? secondaryLineColor : mainLineColor,
       rounded,
-      x: i * (barWidth + gap),
+      x: i * (barWidth + gap * barWidth * 1.1),
       y: height / 2 + barData.min,
       h: barData.max - barData.min,
       w: barWidth,
