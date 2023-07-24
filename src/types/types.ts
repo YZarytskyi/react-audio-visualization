@@ -44,7 +44,7 @@ export interface DrawByBlob {
   backgroundColor: string;
   mainLineColor: string;
   secondaryLineColor: string;
-  currentTime?: number;
+  currentAudioTime?: number;
   rounded: number;
   duration: number;
 }

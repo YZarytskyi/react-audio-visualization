@@ -5,7 +5,7 @@ import { drawByBlob } from "../helpers/drawByBlob.ts";
 import { getBarsData } from "../helpers/getBarsData.ts";
 import { formatTime } from "../helpers/formatTime.ts";
 
-import { Controls, PickItem } from "../types/types.ts";
+import { BarsData, Controls, PickItem } from "../types/types.ts";
 
 interface AudioVisualiserProps {
   controls: Controls;
@@ -25,25 +25,45 @@ export const AudioVisualiser: FC<AudioVisualiserProps> = ({
   controls: { audioData, isRecording, recordedBlob, recordingTime },
   speed = 0.5,
   height = 300,
-  width = 1700,
+  width = 1500,
   backgroundColor = "transparent",
   mainLineColor = "#FFFFFF",
-  secondaryLineColor = "#494848",
+  secondaryLineColor = "#5e5e5e",
   barWidth = 2,
-  gap = 1,
-  rounded = 50,
+  gap = 2,
+  rounded = 2,
   animateCurrentPick = true,
 }) => {
   const [duration, setDuration] = useState(0);
+  const [controlsX, setControlsX] = useState(0);
+  const [audioSrc, setAudioSrc] = useState("");
+  const [currentAudioTime, setCurrentAudioTime] = useState(0);
+  const [barsData, setBarsData] = useState<BarsData[]>([]);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const picksRef = useRef<Array<PickItem | null>>([]);
   const indexRef = useRef(0);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const raf = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!recordedBlob) return;
+
+    setAudioSrc(URL.createObjectURL(recordedBlob));
+    canvasRef.current?.addEventListener("mousemove", setCurrentControlsX);
+
+    return () => {
+      canvasRef.current?.removeEventListener("mousemove", setCurrentControlsX);
+    };
+  }, [recordedBlob]);
 
   useEffect(() => {
     if (!canvasRef.current) return;
 
-    if (indexRef.current >= (gap / speed) * barWidth + barWidth * 1.7) {
+    const coefficientAdjust = gap ? -2 : 2;
+    const unit = (gap * barWidth + barWidth) / speed - gap - coefficientAdjust;
+
+    if (indexRef.current >= unit) {
       indexRef.current = 0;
     } else {
       indexRef.current += 1;
@@ -76,21 +96,10 @@ export const AudioVisualiser: FC<AudioVisualiserProps> = ({
         const audioContext = new AudioContext();
         const buffer = await audioContext.decodeAudioData(audioBuffer);
         const barsData = getBarsData(buffer, height, width, barWidth, gap);
+        setBarsData(barsData);
         setDuration(buffer.duration);
 
         if (!canvasRef.current) return;
-
-        drawByBlob({
-          barsData,
-          canvas: canvasRef.current,
-          barWidth,
-          gap,
-          backgroundColor,
-          mainLineColor,
-          secondaryLineColor,
-          rounded,
-          duration,
-        });
       } catch (error) {
         console.error("Error processing the audio blob:", error);
       }
@@ -99,13 +108,79 @@ export const AudioVisualiser: FC<AudioVisualiserProps> = ({
     void processBlob();
   }, [recordedBlob]);
 
+  useEffect(() => {
+    if (!barsData.length || !canvasRef.current) return;
+
+    drawByBlob({
+      barsData,
+      canvas: canvasRef.current,
+      barWidth,
+      gap,
+      backgroundColor,
+      mainLineColor,
+      secondaryLineColor,
+      currentAudioTime,
+      rounded,
+      duration,
+    });
+  }, [barsData, currentAudioTime]);
+
+  useEffect(() => {
+    return () => {
+      if (raf.current) cancelAnimationFrame(raf.current);
+    };
+  }, []);
+
+  const setCurrentControlsX = (e: MouseEvent) => {
+    setControlsX(e.offsetX);
+  };
+
+  const handleTimeUpdate = () => {
+    if (audioRef.current) {
+      setCurrentAudioTime(audioRef.current.currentTime);
+      raf.current = requestAnimationFrame(handleTimeUpdate);
+    }
+  };
+
+  const playAudio = () => {
+    audioRef.current?.paused
+      ? audioRef.current?.play()
+      : audioRef.current?.pause();
+  };
+
   return (
     <>
-      <canvas height={height} width={width} ref={canvasRef}>
-        Your browser does not support HTML5 Canvas.
-      </canvas>
+      <div className="canvas__container">
+        <canvas
+          height={height}
+          width={width}
+          ref={canvasRef}
+          onClick={() => {
+            if (audioRef.current) {
+              audioRef.current.currentTime = (duration / width) * controlsX;
+            }
+          }}
+        >
+          Your browser does not support HTML5 Canvas.
+        </canvas>
+        <div
+          className="canvas__control"
+          style={{ left: controlsX, display: recordedBlob ? "block" : "none" }}
+        >
+          {((duration / width) * controlsX).toFixed(2)}
+        </div>
+      </div>
       {isRecording && <p>Time: {formatTime(recordingTime)}</p>}
       {duration ? <p>Duration: {duration}s</p> : null}
+      {audioSrc ? <p>{currentAudioTime}</p> : null}
+      <audio
+        ref={audioRef}
+        src={audioSrc}
+        onTimeUpdate={handleTimeUpdate}
+        controls={true}
+        style={{ display: "none" }}
+      />
+      <button onClick={playAudio}>Play music</button>
     </>
   );
 };

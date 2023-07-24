@@ -11,7 +11,7 @@ export const drawByBlob = ({
   backgroundColor,
   mainLineColor,
   secondaryLineColor,
-  currentTime = 0,
+  currentAudioTime = 0,
   rounded,
   duration,
 }: DrawByBlob): void => {
@@ -19,7 +19,7 @@ export const drawByBlob = ({
   if (!canvasData) return;
 
   const { context, height } = canvasData;
-  const playedPercent = currentTime / duration;
+  const playedPercent = currentAudioTime / duration;
 
   barsData.forEach((barData, i) => {
     const mappingPercent = i / barsData.length;
@@ -29,7 +29,7 @@ export const drawByBlob = ({
       context,
       color: played ? secondaryLineColor : mainLineColor,
       rounded,
-      x: i * (barWidth + gap * barWidth * 1.1),
+      x: i * (barWidth + gap * barWidth),
       y: height / 2 + barData.min,
       h: barData.max - barData.min,
       w: barWidth,

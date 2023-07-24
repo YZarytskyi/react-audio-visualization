@@ -11,5 +11,18 @@
 }
 
 .canvas__container {
+  position: relative;
   margin: 0 auto;
+  width: fit-content;
+  height: 300px;
+}
+
+.canvas__control {
+  position: absolute;
+  top: 0;
+  left: 10px;
+  pointer-events: none;
+  height: 100%;
+  width: 1px;
+  background-color: rgba(80, 80, 80, 0.5);
 }
