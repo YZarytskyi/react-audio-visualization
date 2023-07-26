@@ -13,7 +13,6 @@ export const drawByLiveStream = ({
   backgroundColor,
   barWidth,
   mainLineColor,
-  secondaryLineColor,
   rounded,
   animateCurrentPick,
 }: DrawByLiveStreamParams) => {
@@ -25,7 +24,7 @@ export const drawByLiveStream = ({
   const paintLineFromCenterToRight = () => {
     paintLine({
       context,
-      color: secondaryLineColor,
+      color: "#505050",
       rounded,
       x: width / 2 + barWidth / 2,
       y: height / 2 - 1,

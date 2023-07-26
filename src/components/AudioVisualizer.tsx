@@ -23,7 +23,7 @@ interface AudioVisualiserProps {
 
 export const AudioVisualiser: FC<AudioVisualiserProps> = ({
   controls: { audioData, isRecording, recordedBlob, recordingTime },
-  speed = 0.5,
+  speed = 1,
   height = 300,
   width = 1500,
   backgroundColor = "transparent",
@@ -31,7 +31,7 @@ export const AudioVisualiser: FC<AudioVisualiserProps> = ({
   secondaryLineColor = "#5e5e5e",
   barWidth = 2,
   gap = 2,
-  rounded = 2,
+  rounded = 10,
   animateCurrentPick = true,
 }) => {
   const [duration, setDuration] = useState(0);
@@ -39,6 +39,7 @@ export const AudioVisualiser: FC<AudioVisualiserProps> = ({
   const [audioSrc, setAudioSrc] = useState("");
   const [currentAudioTime, setCurrentAudioTime] = useState(0);
   const [barsData, setBarsData] = useState<BarsData[]>([]);
+  const [isRecordedCanvasHovered, setIsRecordedCanvasHovered] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const picksRef = useRef<Array<PickItem | null>>([]);
@@ -56,6 +57,22 @@ export const AudioVisualiser: FC<AudioVisualiserProps> = ({
       canvasRef.current?.removeEventListener("mousemove", setCurrentControlsX);
     };
   }, [recordedBlob]);
+
+  useEffect(() => {
+    if (isRecordedCanvasHovered) {
+      canvasRef.current?.addEventListener("mouseleave", hideTimeIndicator);
+    } else {
+      canvasRef.current?.addEventListener("mouseenter", showTimeIndicator);
+    }
+
+    return () => {
+      if (isRecordedCanvasHovered) {
+        canvasRef.current?.removeEventListener("mouseenter", showTimeIndicator);
+      } else {
+        canvasRef.current?.removeEventListener("mouseleave", hideTimeIndicator);
+      }
+    };
+  }, [isRecordedCanvasHovered]);
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -131,6 +148,14 @@ export const AudioVisualiser: FC<AudioVisualiserProps> = ({
     };
   }, []);
 
+  const showTimeIndicator = () => {
+    setIsRecordedCanvasHovered(true);
+  };
+
+  const hideTimeIndicator = () => {
+    setIsRecordedCanvasHovered(false);
+  };
+
   const setCurrentControlsX = (e: MouseEvent) => {
     setControlsX(e.offsetX);
   };
@@ -163,16 +188,33 @@ export const AudioVisualiser: FC<AudioVisualiserProps> = ({
         >
           Your browser does not support HTML5 Canvas.
         </canvas>
-        <div
-          className="canvas__control"
-          style={{ left: controlsX, display: recordedBlob ? "block" : "none" }}
-        >
-          {((duration / width) * controlsX).toFixed(2)}
-        </div>
+        {isRecordedCanvasHovered && (
+          <div
+            className="control-hover"
+            style={{
+              left: controlsX,
+              display: recordedBlob ? "block" : "none",
+            }}
+          >
+            <p className="control-hover__time">
+              {((duration / width) * controlsX).toFixed(2)}
+            </p>
+          </div>
+        )}
+        {recordedBlob && duration && (
+          <div
+            className="control"
+            style={{
+              left: (currentAudioTime / duration) * width,
+            }}
+          >
+            <p className="control__time">{currentAudioTime.toFixed(2)}</p>
+          </div>
+        )}
       </div>
       {isRecording && <p>Time: {formatTime(recordingTime)}</p>}
       {duration ? <p>Duration: {duration}s</p> : null}
-      {audioSrc ? <p>{currentAudioTime}</p> : null}
+      {audioSrc ? <p>{currentAudioTime.toFixed(2)}</p> : null}
       <audio
         ref={audioRef}
         src={audioSrc}
@@ -180,7 +222,9 @@ export const AudioVisualiser: FC<AudioVisualiserProps> = ({
         controls={true}
         style={{ display: "none" }}
       />
-      <button onClick={playAudio}>Play music</button>
+      <button className="btn__play" onClick={playAudio}>
+        Play music
+      </button>
     </>
   );
 };

@@ -57,7 +57,7 @@ export interface GetDataForCanvasParams {
 export interface PaintLineParams {
   context: CanvasRenderingContext2D;
   color: string;
-  rounded: number;
+  rounded: number | number[];
   x: number;
   y: number;
   w: number;
