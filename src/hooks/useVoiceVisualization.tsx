@@ -15,12 +15,19 @@ export function useVoiceVisualization(): Controls {
   );
   const [recordingTime, setRecordingTime] = useState(0);
   const [prevTime, setPrevTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [audioSrc, setAudioSrc] = useState("");
+  const [currentAudioTime, setCurrentAudioTime] = useState(0);
+  const [bufferFromRecordedBlob, setBufferFromRecordedBlob] =
+    useState<AudioBuffer | null>(null);
 
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const dataArrayRef = useRef<Uint8Array | null>(null);
   const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
   const rafIdRef = useRef<number | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const raf = useRef<number | null>(null);
 
   useEffect(() => {
     if (!isRecording) return;
@@ -75,6 +82,33 @@ export function useVoiceVisualization(): Controls {
     return () => clearInterval(interval);
   }, [prevTime, isPaused, isRecording]);
 
+  useEffect(() => {
+    if (!recordedBlob) return;
+
+    const processBlob = async () => {
+      try {
+        const audioSrcFromBlob = URL.createObjectURL(recordedBlob);
+        if (audioSrcFromBlob) setAudioSrc(audioSrcFromBlob);
+
+        const audioBuffer = await recordedBlob.arrayBuffer();
+        const audioContext = new AudioContext();
+        const buffer = await audioContext.decodeAudioData(audioBuffer);
+        setBufferFromRecordedBlob(buffer);
+        setDuration(buffer.duration);
+      } catch (error) {
+        console.error("Error processing the audio blob:", error);
+      }
+    };
+
+    void processBlob();
+  }, [recordedBlob]);
+
+  useEffect(() => {
+    return () => {
+      if (raf.current) cancelAnimationFrame(raf.current);
+    };
+  }, []);
+
   const tick = () => {
     analyserRef.current!.getByteTimeDomainData(dataArrayRef.current!);
     setAudioData(new Uint8Array(dataArrayRef.current!));
@@ -82,6 +116,21 @@ export function useVoiceVisualization(): Controls {
   };
 
   const handleDataAvailable = (event: BlobEvent) => setRecordedBlob(event.data);
+
+  const _handleTimeUpdate = () => {
+    if (audioRef.current) {
+      setCurrentAudioTime(audioRef.current.currentTime);
+      raf.current = requestAnimationFrame(_handleTimeUpdate);
+    }
+  };
+
+  const playAudio = () => {
+    if (!audioRef.current) return;
+
+    audioRef.current?.paused
+      ? audioRef.current?.play()
+      : audioRef.current?.pause();
+  };
 
   const startRecording = () => {
     if (isRecording) return;
@@ -143,9 +192,16 @@ export function useVoiceVisualization(): Controls {
     recordingTime,
     recordedBlob,
     mediaRecorder,
+    duration,
+    currentAudioTime,
+    audioSrc,
+    bufferFromRecordedBlob,
     startRecording,
     togglePauseResumeRecording,
     stopRecording,
     saveAudioFile,
+    playAudio,
+    _handleTimeUpdate,
+    audioRef,
   };
 }

@@ -1,14 +1,14 @@
-import { FC, useEffect, useRef, useState } from "react";
+import { FC, MutableRefObject, useEffect, useRef, useState } from "react";
 
 import { drawByLiveStream } from "../helpers/drawByLiveStream.ts";
 import { drawByBlob } from "../helpers/drawByBlob.ts";
 import { getBarsData } from "../helpers/getBarsData.ts";
-import { formatTime } from "../helpers/formatTime.ts";
 
 import { BarsData, Controls, PickItem } from "../types/types.ts";
 
 interface AudioVisualiserProps {
   controls: Controls;
+  audioRef: MutableRefObject<HTMLAudioElement | null>;
   speed?: number;
   height?: number;
   width?: number;
@@ -22,7 +22,17 @@ interface AudioVisualiserProps {
 }
 
 export const AudioVisualiser: FC<AudioVisualiserProps> = ({
-  controls: { audioData, isRecording, recordedBlob, recordingTime },
+  controls: {
+    audioData,
+    isRecording,
+    recordedBlob,
+    duration,
+    audioSrc,
+    currentAudioTime,
+    bufferFromRecordedBlob,
+    _handleTimeUpdate,
+  },
+  audioRef,
   speed = 1,
   height = 300,
   width = 1500,
@@ -34,29 +44,13 @@ export const AudioVisualiser: FC<AudioVisualiserProps> = ({
   rounded = 10,
   animateCurrentPick = true,
 }) => {
-  const [duration, setDuration] = useState(0);
   const [controlsX, setControlsX] = useState(0);
-  const [audioSrc, setAudioSrc] = useState("");
-  const [currentAudioTime, setCurrentAudioTime] = useState(0);
   const [barsData, setBarsData] = useState<BarsData[]>([]);
   const [isRecordedCanvasHovered, setIsRecordedCanvasHovered] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const picksRef = useRef<Array<PickItem | null>>([]);
   const indexRef = useRef(0);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const raf = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (!recordedBlob) return;
-
-    setAudioSrc(URL.createObjectURL(recordedBlob));
-    canvasRef.current?.addEventListener("mousemove", setCurrentControlsX);
-
-    return () => {
-      canvasRef.current?.removeEventListener("mousemove", setCurrentControlsX);
-    };
-  }, [recordedBlob]);
 
   useEffect(() => {
     if (isRecordedCanvasHovered) {
@@ -103,27 +97,27 @@ export const AudioVisualiser: FC<AudioVisualiserProps> = ({
   }, [canvasRef.current, audioData]);
 
   useEffect(() => {
-    if (!recordedBlob || !canvasRef.current) return;
+    if (!bufferFromRecordedBlob || !canvasRef.current) return;
 
-    const processBlob = async () => {
+    const processBlob = () => {
       picksRef.current = [];
-
-      try {
-        const audioBuffer = await recordedBlob.arrayBuffer();
-        const audioContext = new AudioContext();
-        const buffer = await audioContext.decodeAudioData(audioBuffer);
-        const barsData = getBarsData(buffer, height, width, barWidth, gap);
-        setBarsData(barsData);
-        setDuration(buffer.duration);
-
-        if (!canvasRef.current) return;
-      } catch (error) {
-        console.error("Error processing the audio blob:", error);
-      }
+      const barsData = getBarsData(
+        bufferFromRecordedBlob,
+        height,
+        width,
+        barWidth,
+        gap,
+      );
+      setBarsData(barsData);
     };
-
     void processBlob();
-  }, [recordedBlob]);
+
+    canvasRef.current?.addEventListener("mousemove", setCurrentControlsX);
+
+    return () => {
+      canvasRef.current?.removeEventListener("mousemove", setCurrentControlsX);
+    };
+  }, [bufferFromRecordedBlob]);
 
   useEffect(() => {
     if (!barsData.length || !canvasRef.current) return;
@@ -142,12 +136,6 @@ export const AudioVisualiser: FC<AudioVisualiserProps> = ({
     });
   }, [barsData, currentAudioTime]);
 
-  useEffect(() => {
-    return () => {
-      if (raf.current) cancelAnimationFrame(raf.current);
-    };
-  }, []);
-
   const showTimeIndicator = () => {
     setIsRecordedCanvasHovered(true);
   };
@@ -158,19 +146,6 @@ export const AudioVisualiser: FC<AudioVisualiserProps> = ({
 
   const setCurrentControlsX = (e: MouseEvent) => {
     setControlsX(e.offsetX);
-  };
-
-  const handleTimeUpdate = () => {
-    if (audioRef.current) {
-      setCurrentAudioTime(audioRef.current.currentTime);
-      raf.current = requestAnimationFrame(handleTimeUpdate);
-    }
-  };
-
-  const playAudio = () => {
-    audioRef.current?.paused
-      ? audioRef.current?.play()
-      : audioRef.current?.pause();
   };
 
   return (
@@ -212,19 +187,13 @@ export const AudioVisualiser: FC<AudioVisualiserProps> = ({
           </div>
         )}
       </div>
-      {isRecording && <p>Time: {formatTime(recordingTime)}</p>}
-      {duration ? <p>Duration: {duration}s</p> : null}
-      {audioSrc ? <p>{currentAudioTime.toFixed(2)}</p> : null}
       <audio
         ref={audioRef}
         src={audioSrc}
-        onTimeUpdate={handleTimeUpdate}
+        onTimeUpdate={_handleTimeUpdate}
         controls={true}
         style={{ display: "none" }}
       />
-      <button className="btn__play" onClick={playAudio}>
-        Play music
-      </button>
     </>
   );
 };

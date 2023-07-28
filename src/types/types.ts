@@ -1,3 +1,5 @@
+import { MutableRefObject } from "react";
+
 export interface PickItem {
   startY: number;
   height: number;
@@ -9,11 +11,18 @@ export interface Controls {
   audioData: Uint8Array;
   recordingTime: number;
   mediaRecorder: MediaRecorder | null;
+  duration: number;
+  currentAudioTime: number;
+  audioSrc: string;
+  bufferFromRecordedBlob: AudioBuffer | null;
   recordedBlob: Blob | null;
   startRecording: () => void;
   togglePauseResumeRecording: () => void;
   stopRecording: () => void;
   saveAudioFile: () => void;
+  playAudio: () => void;
+  _handleTimeUpdate: () => void;
+  audioRef: MutableRefObject<HTMLAudioElement | null>;
 }
 
 export interface BarsData {
