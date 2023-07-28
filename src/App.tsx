@@ -29,7 +29,7 @@ const AudioUpload: React.FC = () => {
     <div className="container">
       <AudioVisualiser controls={recorderControls} ref={audioRef} />
       {isRecording && <p>Time: {formatTime(recordingTime)}</p>}
-      {duration ? <p>Duration: {duration}s</p> : null}
+      {duration ? <p>Duration: {duration.toFixed(2)}s</p> : null}
       {/*{audioSrc ? <p>{currentAudioTime.toFixed(2)}</p> : null}*/}
       <button className="btn__play" onClick={playAudio}>
         Play music

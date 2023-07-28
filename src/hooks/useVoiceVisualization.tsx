@@ -94,7 +94,8 @@ export function useVoiceVisualization(): Controls {
         const audioContext = new AudioContext();
         const buffer = await audioContext.decodeAudioData(audioBuffer);
         setBufferFromRecordedBlob(buffer);
-        setDuration(buffer.duration);
+        //TODO: magic number
+        setDuration(buffer.duration - 0.06);
       } catch (error) {
         console.error("Error processing the audio blob:", error);
       }
@@ -125,7 +126,7 @@ export function useVoiceVisualization(): Controls {
   };
 
   const playAudio = () => {
-    if (!audioRef.current || isRecording) return;
+    if (!audioRef.current || !bufferFromRecordedBlob) return;
 
     audioRef.current?.paused
       ? audioRef.current?.play()
