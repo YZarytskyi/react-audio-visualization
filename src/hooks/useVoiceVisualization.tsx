@@ -125,7 +125,7 @@ export function useVoiceVisualization(): Controls {
   };
 
   const playAudio = () => {
-    if (!audioRef.current) return;
+    if (!audioRef.current || isRecording) return;
 
     audioRef.current?.paused
       ? audioRef.current?.play()
