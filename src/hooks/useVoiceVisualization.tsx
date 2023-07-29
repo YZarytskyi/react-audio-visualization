@@ -6,10 +6,12 @@ import { Controls } from "../types/types.ts";
 
 export function useVoiceVisualization(): Controls {
   const [isRecording, setIsRecording] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
+  const [isPausedRecording, setIsPausedRecording] = useState(false);
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
   const [audioData, setAudioData] = useState<Uint8Array>(new Uint8Array(0));
   const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
+  const [bufferFromRecordedBlob, setBufferFromRecordedBlob] =
+    useState<AudioBuffer | null>(null);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(
     null,
   );
@@ -18,21 +20,19 @@ export function useVoiceVisualization(): Controls {
   const [duration, setDuration] = useState(0);
   const [audioSrc, setAudioSrc] = useState("");
   const [currentAudioTime, setCurrentAudioTime] = useState(0);
-  const [bufferFromRecordedBlob, setBufferFromRecordedBlob] =
-    useState<AudioBuffer | null>(null);
 
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const dataArrayRef = useRef<Uint8Array | null>(null);
   const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
-  const rafIdRef = useRef<number | null>(null);
+  const rafRecordingRef = useRef<number | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const raf = useRef<number | null>(null);
+  const rafCurrentTimeUpdateRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!isRecording) return;
 
-    if (audioContextRef.current && isPaused) return;
+    if (audioContextRef.current && isPausedRecording) return;
     navigator.mediaDevices
       .getUserMedia({ audio: true })
       .then((stream) => {
@@ -50,14 +50,15 @@ export function useVoiceVisualization(): Controls {
         mediaRecorder?.addEventListener("dataavailable", handleDataAvailable);
         mediaRecorder?.start();
 
-        tick();
+        recordingFrame();
       })
       .catch((error) => {
         console.error("Error starting audio recording:", error);
       });
 
     return () => {
-      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+      if (rafRecordingRef.current)
+        cancelAnimationFrame(rafRecordingRef.current);
       if (sourceRef.current) sourceRef.current.disconnect();
       if (
         audioContextRef.current &&
@@ -69,7 +70,7 @@ export function useVoiceVisualization(): Controls {
   }, [isRecording]);
 
   useEffect(() => {
-    if (!isRecording || isPaused) return;
+    if (!isRecording || isPausedRecording) return;
 
     const updateTimer = () => {
       const timeNow = performance.now();
@@ -80,14 +81,17 @@ export function useVoiceVisualization(): Controls {
     const interval = setInterval(updateTimer, 1000);
 
     return () => clearInterval(interval);
-  }, [prevTime, isPaused, isRecording]);
+  }, [prevTime, isPausedRecording, isRecording]);
 
   useEffect(() => {
     if (!recordedBlob) return;
 
     const processBlob = async () => {
       try {
-        const audioSrcFromBlob = URL.createObjectURL(recordedBlob);
+        const blob = new Blob([recordedBlob], {
+          type: mediaRecorder?.mimeType,
+        });
+        const audioSrcFromBlob = URL.createObjectURL(blob);
         if (audioSrcFromBlob) setAudioSrc(audioSrcFromBlob);
 
         const audioBuffer = await recordedBlob.arrayBuffer();
@@ -106,26 +110,31 @@ export function useVoiceVisualization(): Controls {
 
   useEffect(() => {
     return () => {
-      if (raf.current) cancelAnimationFrame(raf.current);
+      if (rafCurrentTimeUpdateRef.current) {
+        cancelAnimationFrame(rafCurrentTimeUpdateRef.current);
+      }
+      if (rafRecordingRef.current) {
+        cancelAnimationFrame(rafRecordingRef.current);
+      }
     };
   }, []);
 
-  const tick = () => {
+  const recordingFrame = () => {
     analyserRef.current!.getByteTimeDomainData(dataArrayRef.current!);
     setAudioData(new Uint8Array(dataArrayRef.current!));
-    rafIdRef.current = requestAnimationFrame(tick);
+    rafRecordingRef.current = requestAnimationFrame(recordingFrame);
   };
 
   const handleDataAvailable = (event: BlobEvent) => setRecordedBlob(event.data);
 
   const _handleTimeUpdate = () => {
-    if (audioRef.current) {
-      setCurrentAudioTime(audioRef.current.currentTime);
-      raf.current = requestAnimationFrame(_handleTimeUpdate);
-    }
+    if (!audioRef.current) return;
+
+    setCurrentAudioTime(audioRef.current.currentTime);
+    rafCurrentTimeUpdateRef.current = requestAnimationFrame(_handleTimeUpdate);
   };
 
-  const playAudio = () => {
+  const togglePauseResumeRecordedAudio = () => {
     if (!audioRef.current || !bufferFromRecordedBlob) return;
 
     audioRef.current?.paused
@@ -138,6 +147,9 @@ export function useVoiceVisualization(): Controls {
 
     setMediaRecorder(null);
     setRecordedBlob(null);
+    setDuration(0);
+    setCurrentAudioTime(0);
+    setAudioSrc("");
     setIsRecording(true);
     setPrevTime(performance.now());
   };
@@ -145,15 +157,16 @@ export function useVoiceVisualization(): Controls {
   const togglePauseResumeRecording = () => {
     if (!isRecording) return;
 
-    setIsPaused((prevPaused) => !prevPaused);
+    setIsPausedRecording((prevPaused) => !prevPaused);
     if (mediaRecorder?.state === "recording") {
       mediaRecorder?.pause();
       setRecordingTime((prev) => prev + (performance.now() - prevTime));
-      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+      if (rafRecordingRef.current)
+        cancelAnimationFrame(rafRecordingRef.current);
     } else {
       mediaRecorder?.resume();
       setPrevTime(performance.now());
-      rafIdRef.current = requestAnimationFrame(tick);
+      rafRecordingRef.current = requestAnimationFrame(recordingFrame);
     }
   };
 
@@ -163,32 +176,28 @@ export function useVoiceVisualization(): Controls {
     audioStream?.getTracks().forEach((track) => track.stop());
     setIsRecording(false);
     setRecordingTime(0);
-    setIsPaused(false);
+    setIsPausedRecording(false);
     mediaRecorder?.stop();
     mediaRecorder?.removeEventListener("dataavailable", handleDataAvailable);
   };
 
   const saveAudioFile = () => {
-    if (!recordedBlob) return;
+    if (!audioSrc) return;
 
-    const blob = new Blob([recordedBlob], {
-      type: mediaRecorder?.mimeType,
-    });
-    const blobUrl = URL.createObjectURL(blob);
     const downloadAnchor = document.createElement("a");
-    downloadAnchor.href = blobUrl;
+    downloadAnchor.href = audioSrc;
     downloadAnchor.download = `recorded_audio${getFileExtensionFromMimeType(
       mediaRecorder?.mimeType,
     )}`;
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     document.body.removeChild(downloadAnchor);
-    URL.revokeObjectURL(blobUrl);
+    URL.revokeObjectURL(audioSrc);
   };
 
   return {
     isRecording,
-    isPaused,
+    isPausedRecording,
     audioData,
     recordingTime,
     recordedBlob,
@@ -201,7 +210,7 @@ export function useVoiceVisualization(): Controls {
     togglePauseResumeRecording,
     stopRecording,
     saveAudioFile,
-    playAudio,
+    togglePauseResumeRecordedAudio,
     _handleTimeUpdate,
     audioRef,
   };

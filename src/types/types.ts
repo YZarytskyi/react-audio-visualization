@@ -7,7 +7,7 @@ export interface PickItem {
 
 export interface Controls {
   isRecording: boolean;
-  isPaused: boolean;
+  isPausedRecording: boolean;
   audioData: Uint8Array;
   recordingTime: number;
   mediaRecorder: MediaRecorder | null;
@@ -20,7 +20,7 @@ export interface Controls {
   togglePauseResumeRecording: () => void;
   stopRecording: () => void;
   saveAudioFile: () => void;
-  playAudio: () => void;
+  togglePauseResumeRecordedAudio: () => void;
   _handleTimeUpdate: () => void;
   audioRef: MutableRefObject<HTMLAudioElement | null>;
 }

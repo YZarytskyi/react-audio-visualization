@@ -8,15 +8,14 @@ import "./App.css";
 
 const AudioUpload: React.FC = () => {
   const recorderControls = useVoiceVisualization();
-
   const {
     isRecording,
-    isPaused,
+    isPausedRecording,
     startRecording,
     togglePauseResumeRecording,
     stopRecording,
     saveAudioFile,
-    playAudio,
+    togglePauseResumeRecordedAudio,
     recordingTime,
     duration,
     audioRef,
@@ -28,15 +27,16 @@ const AudioUpload: React.FC = () => {
   return (
     <div className="container">
       <AudioVisualiser controls={recorderControls} ref={audioRef} />
-      {isRecording && <p>Time: {formatTime(recordingTime)}</p>}
-      {duration ? <p>Duration: {duration.toFixed(2)}s</p> : null}
-      {/*{audioSrc ? <p>{currentAudioTime.toFixed(2)}</p> : null}*/}
-      <button className="btn__play" onClick={playAudio}>
+      <div className="audioInfo__container">
+        {isRecording && <p>Time: {formatTime(recordingTime)}</p>}
+        {duration ? <p>Duration: {duration.toFixed(2)}s</p> : null}
+      </div>
+      <button className="btn__play" onClick={togglePauseResumeRecordedAudio}>
         Play music
       </button>
       <div className="buttons__container">
         <button onClick={onClickStartRecording}>{`${
-          isRecording && !isPaused ? "Pause" : "Start"
+          isRecording && !isPausedRecording ? "Pause" : "Start"
         } Recording`}</button>
         <button onClick={stopRecording}>Stop Recording</button>
         <button onClick={saveAudioFile}>Save Audio File</button>

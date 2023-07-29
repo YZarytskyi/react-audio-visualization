@@ -43,11 +43,11 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
       },
       speed = 0.5,
       height = 300,
-      width = 1500,
+      width = 1400,
       backgroundColor = "transparent",
       mainLineColor = "#FFFFFF",
       secondaryLineColor = "#5e5e5e",
-      barWidth = 2,
+      barWidth = 3,
       gap = 1,
       rounded = 10,
       animateCurrentPick = true,
@@ -62,6 +62,10 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const picksRef = useRef<Array<PickItem | null>>([]);
     const indexRef = useRef(0);
+
+    //TODO: magic numbers
+    const gapCoefficientAdjustRecording = gap ? -2 : 2;
+    // const gapCoefficientAdjustRecorded = gap <= 1 ? -1 : 1;
 
     useEffect(() => {
       if (isRecordedCanvasHovered) {
@@ -88,9 +92,10 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
     useEffect(() => {
       if (!canvasRef.current) return;
 
-      const coefficientAdjust = gap ? -2 : 2;
       const unit =
-        (gap * barWidth + barWidth) / speed - gap - coefficientAdjust;
+        (gap * barWidth + barWidth) / speed -
+        gap -
+        gapCoefficientAdjustRecording;
 
       if (indexRef.current >= unit) {
         indexRef.current = 0;
@@ -147,7 +152,7 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
         barsData,
         canvas: canvasRef.current,
         barWidth,
-        gap,
+        gap: gap,
         backgroundColor,
         mainLineColor,
         secondaryLineColor,
