@@ -7,7 +7,7 @@ export const drawByLiveStream = ({
   audioData,
   index,
   canvas,
-  isRecording,
+  isRecordingInProgress,
   picks,
   speed,
   backgroundColor,
@@ -33,7 +33,7 @@ export const drawByLiveStream = ({
     });
   };
 
-  if (audioData?.length && isRecording) {
+  if (audioData?.length && isRecordingInProgress) {
     const maxPick = Math.max(...audioData);
     const newPick: PickItem | null =
       index === 0

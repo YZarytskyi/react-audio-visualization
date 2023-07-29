@@ -11,6 +11,7 @@ import { drawByBlob } from "../helpers/drawByBlob.ts";
 import { getBarsData } from "../helpers/getBarsData.ts";
 
 import { BarsData, Controls, PickItem } from "../types/types.ts";
+import { getDataForCanvas } from "../helpers/getDataForCanvas.ts";
 
 interface AudioVisualiserProps {
   controls: Controls;
@@ -33,21 +34,22 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
     {
       controls: {
         audioData,
-        isRecording,
+        isRecordingInProgress,
         recordedBlob,
         duration,
         audioSrc,
         currentAudioTime,
         bufferFromRecordedBlob,
+        isProcessingRecordedAudio,
         _handleTimeUpdate,
       },
-      speed = 0.5,
+      speed = 0.7,
       height = 300,
       width = 1400,
       backgroundColor = "transparent",
       mainLineColor = "#FFFFFF",
       secondaryLineColor = "#5e5e5e",
-      barWidth = 3,
+      barWidth = 2,
       gap = 1,
       rounded = 10,
       animateCurrentPick = true,
@@ -65,7 +67,6 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
 
     //TODO: magic numbers
     const gapCoefficientAdjustRecording = gap ? -2 : 2;
-    // const gapCoefficientAdjustRecorded = gap <= 1 ? -1 : 1;
 
     useEffect(() => {
       if (isRecordedCanvasHovered) {
@@ -108,7 +109,7 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
         index: indexRef.current,
         canvas: canvasRef.current,
         picks: picksRef.current,
-        isRecording,
+        isRecordingInProgress,
         backgroundColor,
         mainLineColor,
         secondaryLineColor,
@@ -120,7 +121,12 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
     }, [canvasRef.current, audioData]);
 
     useEffect(() => {
-      if (!bufferFromRecordedBlob || !canvasRef.current || isRecording) return;
+      if (
+        !bufferFromRecordedBlob ||
+        !canvasRef.current ||
+        isRecordingInProgress
+      )
+        return;
 
       const processBlob = () => {
         picksRef.current = [];
@@ -162,6 +168,17 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
       });
     }, [barsData, currentAudioTime]);
 
+    useEffect(() => {
+      if (!canvasRef.current) return;
+
+      if (isProcessingRecordedAudio) {
+        getDataForCanvas({
+          canvas: canvasRef.current,
+          backgroundColor,
+        });
+      }
+    }, [isProcessingRecordedAudio]);
+
     const showTimeIndicator = () => {
       setIsRecordedCanvasHovered(true);
     };
@@ -193,18 +210,18 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
           </canvas>
           {isRecordedCanvasHovered && (
             <div
-              className="control-hover"
+              className="controlHovered"
               style={{
                 left: controlsX,
                 display: recordedBlob ? "block" : "none",
               }}
             >
-              <p className="control-hover__time">
+              <p className="controlHovered__time">
                 {((duration / width) * controlsX).toFixed(2)}
               </p>
             </div>
           )}
-          {recordedBlob && duration && (
+          {recordedBlob && duration ? (
             <div
               className="control"
               style={{
@@ -213,7 +230,7 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
             >
               <p className="control__time">{currentAudioTime.toFixed(2)}</p>
             </div>
-          )}
+          ) : null}
         </div>
         <audio
           ref={ref}

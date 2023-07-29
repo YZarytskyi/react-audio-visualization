@@ -9,37 +9,46 @@ import "./App.css";
 const AudioUpload: React.FC = () => {
   const recorderControls = useVoiceVisualization();
   const {
-    isRecording,
+    isRecordingInProgress,
     isPausedRecording,
     startRecording,
-    togglePauseResumeRecording,
+    togglePauseResume,
     stopRecording,
     saveAudioFile,
-    togglePauseResumeRecordedAudio,
+    recordedBlob,
     recordingTime,
+    isPausedRecordedAudio,
     duration,
     audioRef,
   } = recorderControls;
+
   const onClickStartRecording = () => {
-    isRecording ? togglePauseResumeRecording() : startRecording();
+    isRecordingInProgress ? togglePauseResume() : startRecording();
   };
 
   return (
     <div className="container">
       <AudioVisualiser controls={recorderControls} ref={audioRef} />
       <div className="audioInfo__container">
-        {isRecording && <p>Time: {formatTime(recordingTime)}</p>}
+        {isRecordingInProgress && <p>Time: {formatTime(recordingTime)}</p>}
         {duration ? <p>Duration: {duration.toFixed(2)}s</p> : null}
       </div>
-      <button className="btn__play" onClick={togglePauseResumeRecordedAudio}>
-        Play music
-      </button>
+      {recordedBlob && (
+        <button className="btn__play" onClick={togglePauseResume}>
+          {isPausedRecordedAudio ? "Play" : "Pause"} Audio
+        </button>
+      )}
       <div className="buttons__container">
-        <button onClick={onClickStartRecording}>{`${
-          isRecording && !isPausedRecording ? "Pause" : "Start"
-        } Recording`}</button>
-        <button onClick={stopRecording}>Stop Recording</button>
-        <button onClick={saveAudioFile}>Save Audio File</button>
+        <button onClick={onClickStartRecording}>
+          {isRecordingInProgress && !isPausedRecording ? "Pause" : "Start"}{" "}
+          Recording
+        </button>
+        {isRecordingInProgress && (
+          <button onClick={stopRecording}>Stop Recording</button>
+        )}
+        {recordedBlob && (
+          <button onClick={saveAudioFile}>Save Audio File</button>
+        )}
       </div>
     </div>
   );

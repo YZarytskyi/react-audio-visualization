@@ -6,7 +6,7 @@ export interface PickItem {
 }
 
 export interface Controls {
-  isRecording: boolean;
+  isRecordingInProgress: boolean;
   isPausedRecording: boolean;
   audioData: Uint8Array;
   recordingTime: number;
@@ -14,13 +14,14 @@ export interface Controls {
   duration: number;
   currentAudioTime: number;
   audioSrc: string;
-  bufferFromRecordedBlob: AudioBuffer | null;
+  isPausedRecordedAudio: boolean;
+  isProcessingRecordedAudio: boolean;
   recordedBlob: Blob | null;
+  bufferFromRecordedBlob: AudioBuffer | null;
   startRecording: () => void;
-  togglePauseResumeRecording: () => void;
+  togglePauseResume: () => void;
   stopRecording: () => void;
   saveAudioFile: () => void;
-  togglePauseResumeRecordedAudio: () => void;
   _handleTimeUpdate: () => void;
   audioRef: MutableRefObject<HTMLAudioElement | null>;
 }
@@ -34,7 +35,7 @@ export interface DrawByLiveStreamParams {
   audioData: Uint8Array;
   index: number;
   canvas: HTMLCanvasElement;
-  isRecording: boolean;
+  isRecordingInProgress: boolean;
   picks: Array<PickItem | null>;
   speed: number;
   backgroundColor: string;
