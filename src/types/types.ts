@@ -22,6 +22,7 @@ export interface Controls {
   togglePauseResume: () => void;
   stopRecording: () => void;
   saveAudioFile: () => void;
+  error: Error | null;
   _handleTimeUpdate: () => void;
   audioRef: MutableRefObject<HTMLAudioElement | null>;
 }

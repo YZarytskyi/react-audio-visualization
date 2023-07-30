@@ -17,7 +17,7 @@
     height: 300px;
 }
 
-.controlHovered {
+.progressIndicatorHovered {
     position: absolute;
     top: 0;
     pointer-events: none;
@@ -26,19 +26,19 @@
     background-color: rgba(80, 80, 80, 0.5);
 }
 
-.controlHovered__time {
+.progressIndicatorHovered__time {
     position: absolute;
     top: 2%;
     left: 1px;
     width: fit-content;
     padding:0 8px;
     font-size: 12px;
-    border-radius: 0 5px 5px 0;
+    border-radius: 0 4px 4px 0;
     background-color: #505050;
     opacity: 0.5;
 }
 
-.control {
+.progressIndicator {
     position: absolute;
     top: 0;
     pointer-events: none;
@@ -47,14 +47,14 @@
     background-color: #efefef;
 }
 
-.control__time {
+.progressIndicator__time {
     position: absolute;
     top: 2%;
     left: 1px;
     width: fit-content;
     padding: 0 8px;
     font-size: 12px;
-    border-radius: 0 5px 5px 0;
+    border-radius: 0 4px 4px 0;
     color: black;
     font-weight: 500;
     background-color: #efefef;

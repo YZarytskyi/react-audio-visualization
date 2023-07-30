@@ -1,4 +1,4 @@
-import { getDataForCanvas } from "./getDataForCanvas.ts";
+import { initialCanvasSetup } from "./initialCanvasSetup.ts";
 import { paintLine } from "./paintLine.ts";
 
 import { DrawByLiveStreamParams, PickItem } from "../types/types.ts";
@@ -16,7 +16,7 @@ export const drawByLiveStream = ({
   rounded,
   animateCurrentPick,
 }: DrawByLiveStreamParams) => {
-  const canvasData = getDataForCanvas({ canvas, backgroundColor });
+  const canvasData = initialCanvasSetup({ canvas, backgroundColor });
   if (!canvasData) return;
 
   const { context, height, width } = canvasData;

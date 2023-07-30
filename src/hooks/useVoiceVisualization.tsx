@@ -23,6 +23,7 @@ export function useVoiceVisualization(): Controls {
   const [audioSrc, setAudioSrc] = useState("");
   const [isPausedRecordedAudio, setIsPausedRecordedAudio] = useState(true);
   const [currentAudioTime, setCurrentAudioTime] = useState(0);
+  const [error, setError] = useState<Error | null>(null);
 
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -39,6 +40,7 @@ export function useVoiceVisualization(): Controls {
     navigator.mediaDevices
       .getUserMedia({ audio: true })
       .then((stream) => {
+        setError(null);
         setAudioStream(stream);
         audioContextRef.current = new window.AudioContext();
         analyserRef.current = audioContextRef.current.createAnalyser();
@@ -57,6 +59,11 @@ export function useVoiceVisualization(): Controls {
       })
       .catch((error) => {
         console.error("Error starting audio recording:", error);
+        if (error instanceof Error) {
+          setError(error);
+          return;
+        }
+        setError(new Error("Error starting audio recording"));
       });
 
     return () => {
@@ -91,6 +98,7 @@ export function useVoiceVisualization(): Controls {
 
     const processBlob = async () => {
       try {
+        setError(null);
         const blob = new Blob([recordedBlob], {
           type: mediaRecorder?.mimeType,
         });
@@ -106,12 +114,17 @@ export function useVoiceVisualization(): Controls {
         setIsProcessingRecordedAudio(false);
       } catch (error) {
         console.error("Error processing the audio blob:", error);
+        if (error instanceof Error) {
+          setError(error);
+          return;
+        }
+        setError(new Error("Error processing the audio blob"));
       }
     };
 
     void processBlob();
   }, [recordedBlob]);
-  console.log(isProcessingRecordedAudio);
+
   useEffect(() => {
     return () => {
       if (rafCurrentTimeUpdateRef.current) {
@@ -122,6 +135,12 @@ export function useVoiceVisualization(): Controls {
       }
       if (audioRef?.current) {
         audioRef.current.removeEventListener("ended", onEndedRecordedAudio);
+      }
+      if (mediaRecorder) {
+        mediaRecorder?.removeEventListener(
+          "dataavailable",
+          handleDataAvailable,
+        );
       }
     };
   }, []);
@@ -157,6 +176,18 @@ export function useVoiceVisualization(): Controls {
     setAudioSrc("");
   };
 
+  const stopRecording = () => {
+    if (!isRecordingInProgress) return;
+
+    setIsProcessingRecordedAudio(true);
+    audioStream?.getTracks().forEach((track) => track.stop());
+    setIsRecording(false);
+    setRecordingTime(0);
+    setIsPausedRecording(false);
+    mediaRecorder?.stop();
+    mediaRecorder?.removeEventListener("dataavailable", handleDataAvailable);
+  };
+
   const togglePauseResume = () => {
     if (isRecordingInProgress) {
       setIsPausedRecording((prevPaused) => !prevPaused);
@@ -177,12 +208,12 @@ export function useVoiceVisualization(): Controls {
     if (audioRef.current && bufferFromRecordedBlob) {
       if (audioRef.current?.paused) {
         audioRef.current?.addEventListener("ended", onEndedRecordedAudio);
-        setIsPausedRecordedAudio(false);
         void audioRef.current?.play();
+        setIsPausedRecordedAudio(false);
       } else {
         audioRef.current?.removeEventListener("ended", onEndedRecordedAudio);
-        setIsPausedRecordedAudio(true);
         audioRef.current?.pause();
+        setIsPausedRecordedAudio(true);
       }
     }
   };
@@ -192,18 +223,6 @@ export function useVoiceVisualization(): Controls {
     if (!audioRef?.current) return;
     audioRef.current.currentTime = 0;
     setCurrentAudioTime(0);
-  };
-
-  const stopRecording = () => {
-    if (!isRecordingInProgress) return;
-
-    setIsProcessingRecordedAudio(true);
-    audioStream?.getTracks().forEach((track) => track.stop());
-    setIsRecording(false);
-    setRecordingTime(0);
-    setIsPausedRecording(false);
-    mediaRecorder?.stop();
-    mediaRecorder?.removeEventListener("dataavailable", handleDataAvailable);
   };
 
   const saveAudioFile = () => {
@@ -237,6 +256,7 @@ export function useVoiceVisualization(): Controls {
     togglePauseResume,
     stopRecording,
     saveAudioFile,
+    error,
     _handleTimeUpdate,
     audioRef,
   };

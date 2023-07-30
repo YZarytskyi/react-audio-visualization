@@ -1,6 +1,6 @@
 import { GetDataForCanvasParams } from "../types/types.ts";
 
-export const getDataForCanvas = ({
+export const initialCanvasSetup = ({
   canvas,
   backgroundColor,
 }: GetDataForCanvasParams) => {

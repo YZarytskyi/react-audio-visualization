@@ -9,9 +9,9 @@ import {
 import { drawByLiveStream } from "../helpers/drawByLiveStream.ts";
 import { drawByBlob } from "../helpers/drawByBlob.ts";
 import { getBarsData } from "../helpers/getBarsData.ts";
+import { initialCanvasSetup } from "../helpers/initialCanvasSetup.ts";
 
 import { BarsData, Controls, PickItem } from "../types/types.ts";
-import { getDataForCanvas } from "../helpers/getDataForCanvas.ts";
 
 interface AudioVisualiserProps {
   controls: Controls;
@@ -25,6 +25,15 @@ interface AudioVisualiserProps {
   gap?: number;
   rounded?: number;
   animateCurrentPick?: boolean;
+  canvasContainerClassName?: string;
+  isProgressIndicatorShown?: boolean;
+  progressIndicatorClassName?: string;
+  isProgressIndicatorTimeShown?: boolean;
+  progressIndicatorTimeClassName?: string;
+  isProgressIndicatorOnHoverShown?: boolean;
+  progressIndicatorOnHoverClassName?: string;
+  isProgressIndicatorTimeOnHoverShown?: boolean;
+  progressIndicatorTimeOnHoverClassName?: string;
 }
 
 type Ref = HTMLAudioElement | null;
@@ -53,6 +62,15 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
       gap = 1,
       rounded = 10,
       animateCurrentPick = true,
+      canvasContainerClassName,
+      isProgressIndicatorShown = true,
+      progressIndicatorClassName,
+      isProgressIndicatorTimeShown = true,
+      progressIndicatorTimeClassName,
+      isProgressIndicatorOnHoverShown = true,
+      progressIndicatorOnHoverClassName,
+      isProgressIndicatorTimeOnHoverShown = true,
+      progressIndicatorTimeOnHoverClassName,
     },
     ref,
   ) => {
@@ -78,13 +96,13 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
       return () => {
         if (isRecordedCanvasHovered) {
           canvasRef.current?.removeEventListener(
-            "mouseenter",
-            showTimeIndicator,
+            "mouseleave",
+            hideTimeIndicator,
           );
         } else {
           canvasRef.current?.removeEventListener(
-            "mouseleave",
-            hideTimeIndicator,
+            "mouseenter",
+            showTimeIndicator,
           );
         }
       };
@@ -172,7 +190,7 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
       if (!canvasRef.current) return;
 
       if (isProcessingRecordedAudio) {
-        getDataForCanvas({
+        initialCanvasSetup({
           canvas: canvasRef.current,
           backgroundColor,
         });
@@ -193,7 +211,7 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
 
     return (
       <>
-        <div className="canvas__container">
+        <div className={`canvas__container ${canvasContainerClassName ?? ""}`}>
           <canvas
             height={height}
             width={width}
@@ -208,27 +226,45 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
           >
             Your browser does not support HTML5 Canvas.
           </canvas>
-          {isRecordedCanvasHovered && (
+          {isRecordedCanvasHovered && isProgressIndicatorOnHoverShown && (
             <div
-              className="controlHovered"
+              className={`progressIndicatorHovered ${
+                progressIndicatorOnHoverClassName ?? ""
+              }`}
               style={{
                 left: controlsX,
                 display: recordedBlob ? "block" : "none",
               }}
             >
-              <p className="controlHovered__time">
-                {((duration / width) * controlsX).toFixed(2)}
-              </p>
+              {isProgressIndicatorTimeOnHoverShown && (
+                <p
+                  className={`progressIndicatorHovered__time ${
+                    progressIndicatorTimeOnHoverClassName ?? ""
+                  }`}
+                >
+                  {((duration / width) * controlsX).toFixed(2)}
+                </p>
+              )}
             </div>
           )}
-          {recordedBlob && duration ? (
+          {recordedBlob && duration && isProgressIndicatorShown ? (
             <div
-              className="control"
+              className={`progressIndicator ${
+                progressIndicatorClassName ?? ""
+              }`}
               style={{
                 left: (currentAudioTime / duration) * width,
               }}
             >
-              <p className="control__time">{currentAudioTime.toFixed(2)}</p>
+              {isProgressIndicatorTimeShown && (
+                <p
+                  className={`progressIndicator__time ${
+                    progressIndicatorTimeClassName ?? ""
+                  }`}
+                >
+                  {currentAudioTime.toFixed(2)}
+                </p>
+              )}
             </div>
           ) : null}
         </div>

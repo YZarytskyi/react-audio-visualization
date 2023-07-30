@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import { AudioVisualiser } from "./components/AudioVisualizer.tsx";
 import { useVoiceVisualization } from "./hooks/useVoiceVisualization.tsx";
@@ -19,8 +19,21 @@ const AudioUpload: React.FC = () => {
     recordingTime,
     isPausedRecordedAudio,
     duration,
+    error,
     audioRef,
   } = recorderControls;
+
+  useEffect(() => {
+    if (!recordedBlob) return;
+
+    console.log(recordedBlob);
+  }, [recordedBlob, error]);
+
+  useEffect(() => {
+    if (!error) return;
+
+    console.log(error);
+  }, [error]);
 
   const onClickStartRecording = () => {
     isRecordingInProgress ? togglePauseResume() : startRecording();

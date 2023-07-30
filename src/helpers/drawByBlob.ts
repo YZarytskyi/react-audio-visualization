@@ -1,4 +1,4 @@
-import { getDataForCanvas } from "./getDataForCanvas.ts";
+import { initialCanvasSetup } from "./initialCanvasSetup.ts";
 import { paintLine } from "./paintLine.ts";
 
 import { DrawByBlob } from "../types/types.ts";
@@ -15,7 +15,7 @@ export const drawByBlob = ({
   rounded,
   duration,
 }: DrawByBlob): void => {
-  const canvasData = getDataForCanvas({ canvas, backgroundColor });
+  const canvasData = initialCanvasSetup({ canvas, backgroundColor });
   if (!canvasData) return;
 
   const { context, height } = canvasData;
