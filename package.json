@@ -1,7 +1,17 @@
 {
   "name": "react-audio-visualization",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "author": "Yurii Zarytskyi",
+  "description": "A library for audio recording and visualization in React applications.",
+  "keywords": [
+    "audio",
+    "recording",
+    "visualization",
+    "voice",
+    "react",
+    "library"
+  ],
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -25,5 +35,6 @@
     "eslint-plugin-react-refresh": "^0.4.1",
     "typescript": "^5.0.2",
     "vite": "^4.4.0"
-  }
+  },
+  "license": "MIT"
 }
