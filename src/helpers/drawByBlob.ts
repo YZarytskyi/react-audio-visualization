@@ -9,8 +9,8 @@ export const drawByBlob = ({
   barWidth,
   gap,
   backgroundColor,
-  mainLineColor,
-  secondaryLineColor,
+  mainBarColor,
+  secondaryBarColor,
   currentAudioTime = 0,
   rounded,
   duration,
@@ -27,7 +27,7 @@ export const drawByBlob = ({
 
     paintLine({
       context,
-      color: played ? secondaryLineColor : mainLineColor,
+      color: played ? secondaryBarColor : mainBarColor,
       rounded,
       x: i * (barWidth + gap * barWidth),
       y: height / 2 + barData.min,

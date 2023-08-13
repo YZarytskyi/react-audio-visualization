@@ -109,7 +109,6 @@ export function useVoiceVisualization(): Controls {
         const audioContext = new AudioContext();
         const buffer = await audioContext.decodeAudioData(audioBuffer);
         setBufferFromRecordedBlob(buffer);
-        //TODO: magic number
         setDuration(buffer.duration - 0.06);
         setIsProcessingRecordedAudio(false);
       } catch (error) {

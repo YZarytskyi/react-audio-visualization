@@ -1,9 +1,9 @@
 import {
-  forwardRef,
-  MutableRefObject,
-  useEffect,
-  useRef,
   useState,
+  useEffect,
+  forwardRef,
+  useRef,
+  MutableRefObject,
 } from "react";
 
 import { drawByLiveStream } from "../helpers/drawByLiveStream.ts";
@@ -15,12 +15,12 @@ import { BarsData, Controls, PickItem } from "../types/types.ts";
 
 interface AudioVisualiserProps {
   controls: Controls;
-  speed?: number;
   height?: number;
   width?: number;
+  speed?: number;
   backgroundColor?: string;
-  mainLineColor?: string;
-  secondaryLineColor?: string;
+  mainBarColor?: string;
+  secondaryBarColor?: string;
   barWidth?: number;
   gap?: number;
   rounded?: number;
@@ -52,14 +52,14 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
         isProcessingRecordedAudio,
         _handleTimeUpdate,
       },
-      speed = 0.7,
       height = 300,
-      width = 1400,
+      width = 1200,
+      speed = 1,
       backgroundColor = "transparent",
-      mainLineColor = "#FFFFFF",
-      secondaryLineColor = "#5e5e5e",
+      mainBarColor = "#FFFFFF",
+      secondaryBarColor = "#5e5e5e",
       barWidth = 2,
-      gap = 1,
+      gap = 2,
       rounded = 10,
       animateCurrentPick = true,
       canvasContainerClassName,
@@ -74,17 +74,18 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
     },
     ref,
   ) => {
-    const [controlsX, setControlsX] = useState(0);
+    const [offsetX, setOffsetX] = useState(0);
     const [barsData, setBarsData] = useState<BarsData[]>([]);
     const [isRecordedCanvasHovered, setIsRecordedCanvasHovered] =
       useState(false);
 
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const picksRef = useRef<Array<PickItem | null>>([]);
-    const indexRef = useRef(0);
+    const indexRef = useRef(barWidth);
+    const index2Ref = useRef(0);
+    const index3Ref = useRef(0);
 
-    //TODO: magic numbers
-    const gapCoefficientAdjustRecording = gap ? -2 : 2;
+    const unit = barWidth + gap * barWidth;
 
     useEffect(() => {
       if (isRecordedCanvasHovered) {
@@ -111,31 +112,27 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
     useEffect(() => {
       if (!canvasRef.current) return;
 
-      const unit =
-        (gap * barWidth + barWidth) / speed -
-        gap -
-        gapCoefficientAdjustRecording;
+      if (index3Ref.current === speed) {
+        index3Ref.current = 0;
 
-      if (indexRef.current >= unit) {
-        indexRef.current = 0;
-      } else {
-        indexRef.current += 1;
+        drawByLiveStream({
+          audioData,
+          unit,
+          index: indexRef,
+          index2: index2Ref,
+          canvas: canvasRef.current,
+          picks: picksRef.current,
+          isRecordingInProgress,
+          backgroundColor,
+          mainBarColor,
+          secondaryBarColor,
+          barWidth,
+          rounded,
+          animateCurrentPick,
+        });
       }
 
-      drawByLiveStream({
-        audioData,
-        index: indexRef.current,
-        canvas: canvasRef.current,
-        picks: picksRef.current,
-        isRecordingInProgress,
-        backgroundColor,
-        mainLineColor,
-        secondaryLineColor,
-        speed,
-        barWidth,
-        rounded,
-        animateCurrentPick,
-      });
+      index3Ref.current += 1;
     }, [canvasRef.current, audioData]);
 
     useEffect(() => {
@@ -159,13 +156,10 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
       };
       void processBlob();
 
-      canvasRef.current?.addEventListener("mousemove", setCurrentControlsX);
+      canvasRef.current?.addEventListener("mousemove", setCurrentOffsetX);
 
       return () => {
-        canvasRef.current?.removeEventListener(
-          "mousemove",
-          setCurrentControlsX,
-        );
+        canvasRef.current?.removeEventListener("mousemove", setCurrentOffsetX);
       };
     }, [bufferFromRecordedBlob]);
 
@@ -178,8 +172,8 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
         barWidth,
         gap: gap,
         backgroundColor,
-        mainLineColor,
-        secondaryLineColor,
+        mainBarColor,
+        secondaryBarColor,
         currentAudioTime,
         rounded,
         duration,
@@ -205,8 +199,8 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
       setIsRecordedCanvasHovered(false);
     };
 
-    const setCurrentControlsX = (e: MouseEvent) => {
-      setControlsX(e.offsetX);
+    const setCurrentOffsetX = (e: MouseEvent) => {
+      setOffsetX(e.offsetX);
     };
 
     return (
@@ -217,10 +211,10 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
             width={width}
             ref={canvasRef}
             onClick={() => {
-              if (ref) {
+              if ((ref as MutableRefObject<HTMLAudioElement>)?.current) {
                 (
                   ref as MutableRefObject<HTMLAudioElement>
-                ).current.currentTime = (duration / width) * controlsX;
+                ).current.currentTime = (duration / width) * offsetX;
               }
             }}
           >
@@ -232,7 +226,7 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
                 progressIndicatorOnHoverClassName ?? ""
               }`}
               style={{
-                left: controlsX,
+                left: offsetX,
                 display: recordedBlob ? "block" : "none",
               }}
             >
@@ -242,7 +236,7 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
                     progressIndicatorTimeOnHoverClassName ?? ""
                   }`}
                 >
-                  {((duration / width) * controlsX).toFixed(2)}
+                  {((duration / width) * offsetX).toFixed(2)}
                 </p>
               )}
             </div>

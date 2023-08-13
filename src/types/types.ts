@@ -34,15 +34,16 @@ export interface BarsData {
 
 export interface DrawByLiveStreamParams {
   audioData: Uint8Array;
-  index: number;
+  unit: number;
+  index: MutableRefObject<number>;
+  index2: MutableRefObject<number>;
   canvas: HTMLCanvasElement;
   isRecordingInProgress: boolean;
   picks: Array<PickItem | null>;
-  speed: number;
   backgroundColor: string;
   barWidth: number;
-  mainLineColor: string;
-  secondaryLineColor: string;
+  mainBarColor: string;
+  secondaryBarColor: string;
   rounded: number;
   animateCurrentPick: boolean;
 }
@@ -53,8 +54,8 @@ export interface DrawByBlob {
   barWidth: number;
   gap: number;
   backgroundColor: string;
-  mainLineColor: string;
-  secondaryLineColor: string;
+  mainBarColor: string;
+  secondaryBarColor: string;
   currentAudioTime?: number;
   rounded: number;
   duration: number;
