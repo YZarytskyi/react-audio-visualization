@@ -54,7 +54,7 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
       },
       height = 300,
       width = 1200,
-      speed = 1,
+      speed = 2,
       backgroundColor = "transparent",
       mainBarColor = "#FFFFFF",
       secondaryBarColor = "#5e5e5e",
