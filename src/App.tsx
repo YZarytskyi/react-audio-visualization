@@ -11,6 +11,7 @@ const AudioUpload: React.FC = () => {
   const {
     isRecordingInProgress,
     isPausedRecording,
+    isProcessingRecordedAudio,
     startRecording,
     togglePauseResume,
     stopRecording,

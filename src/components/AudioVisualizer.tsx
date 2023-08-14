@@ -220,6 +220,9 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
           >
             Your browser does not support HTML5 Canvas.
           </canvas>
+          {isProcessingRecordedAudio && (
+            <p className="canvas__audio-processing">Processing Audio...</p>
+          )}
           {isRecordedCanvasHovered && isProgressIndicatorOnHoverShown && (
             <div
               className={`progressIndicatorHovered ${
