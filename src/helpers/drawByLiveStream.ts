@@ -26,14 +26,14 @@ export const drawByLiveStream = ({
     const maxPick = Math.max(...audioData);
     index2.current += 1;
 
-    if (index2.current === barWidth) {
+    if (index2.current >= barWidth) {
       index2.current = 0;
 
       const newPick: PickItem | null =
         index.current === barWidth
           ? {
-              startY: height - (maxPick / 255) * height,
-              height: -height + (maxPick / 255) * height * 2,
+              startY: height - (maxPick / 260) * height,
+              height: -height + (maxPick / 260) * height * 2,
             }
           : null;
 
@@ -59,8 +59,8 @@ export const drawByLiveStream = ({
         rounded,
         color: mainBarColor,
         x: width / 2,
-        y: height - (maxPick / 255) * height,
-        h: -height + (maxPick / 255) * height * 2,
+        y: height - (maxPick / 260) * height,
+        h: -height + (maxPick / 260) * height * 2,
         w: barWidth,
       });
     }
