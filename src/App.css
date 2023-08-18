@@ -37,6 +37,16 @@
     color: black;
 }
 
+.controls__input::-webkit-outer-spin-button,
+.controls__input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
 .controls__selects {
     display: flex;
     gap: 20px;

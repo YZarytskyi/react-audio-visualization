@@ -246,6 +246,7 @@ const AudioUpload: React.FC = () => {
           <label>
             Width
             <input
+              type="number"
               className="controls__input"
               value={width}
               onChange={(e) => setWidth(Number(e.target.value))}
@@ -254,6 +255,7 @@ const AudioUpload: React.FC = () => {
           <label>
             Height
             <input
+              type="number"
               className="controls__input"
               value={height}
               onChange={(e) => setHeight(Number(e.target.value))}
