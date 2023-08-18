@@ -53,14 +53,14 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
         _handleTimeUpdate,
       },
       height = 200,
-      width = 1200,
+      width = 1300,
       speed = 2,
       backgroundColor = "transparent",
       mainBarColor = "#FFFFFF",
       secondaryBarColor = "#5e5e5e",
       barWidth = 2,
       gap = 1,
-      rounded = 10,
+      rounded = 5,
       animateCurrentPick = true,
       canvasContainerClassName,
       isProgressIndicatorShown = true,
@@ -83,7 +83,7 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
     const picksRef = useRef<Array<PickItem | null>>([]);
     const indexRef = useRef(barWidth);
     const index2Ref = useRef(0);
-    const index3Ref = useRef(0);
+    const index3Ref = useRef(speed);
 
     const unit = barWidth + gap * barWidth;
 

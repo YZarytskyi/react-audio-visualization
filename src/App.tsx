@@ -9,13 +9,15 @@ import { generateOptionsForSelect } from "./helpers/generateOptionsForSelect.ts"
 import "./App.css";
 
 const AudioUpload: React.FC = () => {
+  const [width, setWidth] = useState(1300);
+  const [height, setHeight] = useState(200);
   const [speed, setSpeed] = useState(2);
   const [backgroundColor, setBackgroundColor] = useState("transparent");
   const [mainBarColor, setMainBarColor] = useState("#FFFFFF");
   const [secondaryBarColor, setSecondaryBarColor] = useState("#5e5e5e");
   const [barWidth, setBarWidth] = useState(2);
   const [gap, setGap] = useState(1);
-  const [rounded, setRounded] = useState(10);
+  const [rounded, setRounded] = useState(5);
   const [animateCurrentPick, setAnimateCurrentPick] = useState(true);
   const [isProgressIndicatorShown, setIsProgressIndicatorShown] =
     useState(true);
@@ -76,6 +78,8 @@ const AudioUpload: React.FC = () => {
       <AudioVisualiser
         controls={recorderControls}
         ref={audioRef}
+        width={width}
+        height={height}
         speed={speed}
         backgroundColor={backgroundColor}
         mainBarColor={mainBarColor}
@@ -235,6 +239,24 @@ const AudioUpload: React.FC = () => {
               className="controls__input"
               value={secondaryBarColor}
               onChange={(e) => setSecondaryBarColor(e.target.value)}
+            />
+          </label>
+        </div>
+        <div className="controls__inputs">
+          <label>
+            Width
+            <input
+              className="controls__input"
+              value={width}
+              onChange={(e) => setWidth(Number(e.target.value))}
+            />
+          </label>
+          <label>
+            Height
+            <input
+              className="controls__input"
+              value={height}
+              onChange={(e) => setHeight(Number(e.target.value))}
             />
           </label>
         </div>
