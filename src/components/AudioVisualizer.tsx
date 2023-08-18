@@ -54,7 +54,7 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
       },
       height = 300,
       width = 1200,
-      speed = 2,
+      speed = 0.2,
       backgroundColor = "transparent",
       mainBarColor = "#FFFFFF",
       secondaryBarColor = "#5e5e5e",
@@ -112,7 +112,11 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
     useEffect(() => {
       if (!canvasRef.current) return;
 
-      if (index3Ref.current === speed) {
+      const minSpeed = 0.2;
+      const maxSpeed = 1;
+      const normalizedSpeed = Math.max(minSpeed, Math.min(maxSpeed, speed)); // Ensure speed is between 0.2 and 1
+
+      if (index3Ref.current >= 1 / normalizedSpeed) {
         index3Ref.current = 0;
 
         drawByLiveStream({
