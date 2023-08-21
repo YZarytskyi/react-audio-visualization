@@ -66,7 +66,7 @@ const selectStyles = (width: string): StylesConfig => ({
   }),
 });
 
-export type StringTrueOrFalse = "true" | "false";
+type StringTrueOrFalse = "true" | "false";
 
 export interface SelectOptionsType<T> {
   value: T;

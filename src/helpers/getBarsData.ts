@@ -10,47 +10,37 @@ export const getBarsData = (
   const bufferData = buffer.getChannelData(0);
   const units = width / (barWidth + gap * barWidth);
   const step = Math.floor(bufferData.length / units);
-  const amp = height / 2;
+  const halfHeight = height / 2;
 
-  let data: BarsData[] = [];
+  let barsData: BarsData[] = [];
   let maxDataPoint = 0;
 
   for (let i = 0; i < units; i++) {
-    const mins: number[] = [];
-    let minCount = 0;
-    const maxs: number[] = [];
+    const maximums: number[] = [];
     let maxCount = 0;
 
     for (let j = 0; j < step && i * step + j < buffer.length; j++) {
-      const datum = bufferData[i * step + j];
-      if (datum <= 0) {
-        mins.push(datum);
-        minCount++;
-      }
-      if (datum > 0) {
-        maxs.push(datum);
+      const result = bufferData[i * step + j];
+      if (result > 0) {
+        maximums.push(result);
         maxCount++;
       }
     }
-    const minAvg = mins.reduce((a, c) => a + c, 0) / minCount;
-    const maxAvg = maxs.reduce((a, c) => a + c, 0) / maxCount;
+    const maxAvg = maximums.reduce((a, c) => a + c, 0) / maxCount;
 
-    const dataPoint = { max: maxAvg, min: minAvg };
+    if (maxAvg > maxDataPoint) {
+      maxDataPoint = maxAvg;
+    }
 
-    if (dataPoint.max > maxDataPoint) maxDataPoint = dataPoint.max;
-    if (Math.abs(dataPoint.min) > maxDataPoint)
-      maxDataPoint = Math.abs(dataPoint.min);
-
-    data.push(dataPoint);
+    barsData.push({ max: maxAvg });
   }
 
-  if (amp * 0.8 > maxDataPoint * amp) {
-    const adjustmentFactor = (amp * 0.8) / maxDataPoint;
-    data = data.map((dp) => ({
-      max: dp.max * adjustmentFactor,
-      min: dp.min * adjustmentFactor,
+  if (halfHeight * 0.95 > maxDataPoint * halfHeight) {
+    const adjustmentFactor = (halfHeight * 0.95) / maxDataPoint;
+    barsData = barsData.map((bar) => ({
+      max: bar.max > 0.01 ? bar.max * adjustmentFactor : 1,
     }));
   }
 
-  return data;
+  return barsData;
 };

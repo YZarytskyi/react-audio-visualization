@@ -87,9 +87,9 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
 
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const picksRef = useRef<Array<PickItem | null>>([]);
+    const indexSpeedRef = useRef(speed);
     const indexRef = useRef(barWidth);
     const index2Ref = useRef(0);
-    const index3Ref = useRef(speed);
 
     const unit = barWidth + gap * barWidth;
 
@@ -120,8 +120,8 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
     useEffect(() => {
       if (!canvasRef.current) return;
 
-      if (index3Ref.current >= speed) {
-        index3Ref.current = 0;
+      if (indexSpeedRef.current >= speed || !audioData.length) {
+        indexSpeedRef.current = 0;
 
         drawByLiveStream({
           audioData,
@@ -140,7 +140,7 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
         });
       }
 
-      index3Ref.current += 1;
+      indexSpeedRef.current += 1;
     }, [canvasRef.current, audioData]);
 
     useEffect(() => {
@@ -154,14 +154,9 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
 
       const processBlob = () => {
         picksRef.current = [];
-        const barsData = getBarsData(
-          bufferFromRecordedBlob,
-          height,
-          width,
-          barWidth,
-          gap,
+        setBarsData(
+          getBarsData(bufferFromRecordedBlob, height, width, barWidth, gap),
         );
-        setBarsData(barsData);
       };
       void processBlob();
 

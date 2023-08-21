@@ -22,6 +22,7 @@ export interface Controls {
   togglePauseResume: () => void;
   stopRecording: () => void;
   saveAudioFile: () => void;
+  clearCanvas: () => void;
   error: Error | null;
   _handleTimeUpdate: () => void;
   audioRef: MutableRefObject<HTMLAudioElement | null>;
@@ -29,7 +30,6 @@ export interface Controls {
 
 export interface BarsData {
   max: number;
-  min: number;
 }
 
 export interface DrawByLiveStreamParams {

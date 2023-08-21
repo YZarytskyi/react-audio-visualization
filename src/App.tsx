@@ -34,11 +34,11 @@ const AudioUpload: React.FC = () => {
   const {
     isRecordingInProgress,
     isPausedRecording,
-    // isProcessingRecordedAudio,
     startRecording,
     togglePauseResume,
     stopRecording,
     saveAudioFile,
+    clearCanvas,
     recordedBlob,
     recordingTime,
     isPausedRecordedAudio,
@@ -115,6 +115,7 @@ const AudioUpload: React.FC = () => {
         {recordedBlob && (
           <button onClick={saveAudioFile}>Save Audio File</button>
         )}
+        <button onClick={clearCanvas}>Clear Canvas</button>
       </div>
       <div className="controls__container">
         <div className="controls__selects">

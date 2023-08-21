@@ -30,8 +30,8 @@ export const drawByBlob = ({
       color: played ? secondaryBarColor : mainBarColor,
       rounded,
       x: i * (barWidth + gap * barWidth),
-      y: height / 2 + barData.min,
-      h: barData.max - barData.min,
+      y: height / 2 - barData.max,
+      h: barData.max * 2,
       w: barWidth,
     });
   });

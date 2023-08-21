@@ -82,6 +82,7 @@ export const drawByLiveStream = ({
       x -= barWidth;
     });
   } else {
+    picks.length = 0;
     paintLineFromCenterToRight();
   }
 
