@@ -37,8 +37,6 @@ export interface DrawByLiveStreamParams {
   unit: number;
   index: MutableRefObject<number>;
   index2: MutableRefObject<number>;
-  index3: MutableRefObject<number>;
-  speed: number;
   canvas: HTMLCanvasElement;
   isRecordingInProgress: boolean;
   picks: Array<PickItem | null>;

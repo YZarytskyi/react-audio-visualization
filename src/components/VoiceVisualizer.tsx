@@ -120,23 +120,27 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
     useEffect(() => {
       if (!canvasRef.current) return;
 
-      drawByLiveStream({
-        audioData,
-        unit,
-        index: indexRef,
-        index2: index2Ref,
-        index3: index3Ref,
-        speed,
-        canvas: canvasRef.current,
-        picks: picksRef.current,
-        isRecordingInProgress,
-        backgroundColor,
-        mainBarColor,
-        secondaryBarColor,
-        barWidth,
-        rounded,
-        animateCurrentPick,
-      });
+      if (index3Ref.current >= speed) {
+        index3Ref.current = 0;
+
+        drawByLiveStream({
+          audioData,
+          unit,
+          index: indexRef,
+          index2: index2Ref,
+          canvas: canvasRef.current,
+          picks: picksRef.current,
+          isRecordingInProgress,
+          backgroundColor,
+          mainBarColor,
+          secondaryBarColor,
+          barWidth,
+          rounded,
+          animateCurrentPick,
+        });
+      }
+
+      index3Ref.current += 1;
     }, [canvasRef.current, audioData]);
 
     useEffect(() => {
