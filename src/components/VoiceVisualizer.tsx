@@ -13,7 +13,7 @@ import { initialCanvasSetup } from "../helpers/initialCanvasSetup.ts";
 
 import { BarsData, Controls, PickItem } from "../types/types.ts";
 
-interface AudioVisualiserProps {
+interface VoiceVisualiserProps {
   controls: Controls;
   height?: number;
   width?: number;
@@ -25,6 +25,7 @@ interface AudioVisualiserProps {
   gap?: number;
   rounded?: number;
   animateCurrentPick?: boolean;
+  onlyRecording?: boolean;
   canvasContainerClassName?: string;
   isProgressIndicatorShown?: boolean;
   progressIndicatorClassName?: string;
@@ -34,11 +35,13 @@ interface AudioVisualiserProps {
   progressIndicatorOnHoverClassName?: string;
   isProgressIndicatorTimeOnHoverShown?: boolean;
   progressIndicatorTimeOnHoverClassName?: string;
+  isAudioProcessingTextShown?: boolean;
+  audioProcessingTextClassName?: string;
 }
 
 type Ref = HTMLAudioElement | null;
 
-export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
+export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
   (
     {
       controls: {
@@ -62,6 +65,7 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
       gap = 1,
       rounded = 5,
       animateCurrentPick = true,
+      onlyRecording = false,
       canvasContainerClassName,
       isProgressIndicatorShown = true,
       progressIndicatorClassName,
@@ -71,6 +75,8 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
       progressIndicatorOnHoverClassName,
       isProgressIndicatorTimeOnHoverShown = true,
       progressIndicatorTimeOnHoverClassName,
+      isAudioProcessingTextShown = true,
+      audioProcessingTextClassName,
     },
     ref,
   ) => {
@@ -88,6 +94,8 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
     const unit = barWidth + gap * barWidth;
 
     useEffect(() => {
+      if (!bufferFromRecordedBlob) return;
+
       if (isRecordedCanvasHovered) {
         canvasRef.current?.addEventListener("mouseleave", hideTimeIndicator);
       } else {
@@ -112,31 +120,28 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
     useEffect(() => {
       if (!canvasRef.current) return;
 
-      if (index3Ref.current >= speed) {
-        index3Ref.current = 0;
-
-        drawByLiveStream({
-          audioData,
-          unit,
-          index: indexRef,
-          index2: index2Ref,
-          canvas: canvasRef.current,
-          picks: picksRef.current,
-          isRecordingInProgress,
-          backgroundColor,
-          mainBarColor,
-          secondaryBarColor,
-          barWidth,
-          rounded,
-          animateCurrentPick,
-        });
-      }
-
-      index3Ref.current += 1;
+      drawByLiveStream({
+        audioData,
+        unit,
+        index: indexRef,
+        index2: index2Ref,
+        index3: index3Ref,
+        speed,
+        canvas: canvasRef.current,
+        picks: picksRef.current,
+        isRecordingInProgress,
+        backgroundColor,
+        mainBarColor,
+        secondaryBarColor,
+        barWidth,
+        rounded,
+        animateCurrentPick,
+      });
     }, [canvasRef.current, audioData]);
 
     useEffect(() => {
       if (
+        onlyRecording ||
         !bufferFromRecordedBlob ||
         !canvasRef.current ||
         isRecordingInProgress
@@ -164,7 +169,7 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
     }, [bufferFromRecordedBlob]);
 
     useEffect(() => {
-      if (!barsData.length || !canvasRef.current) return;
+      if (onlyRecording || !barsData.length || !canvasRef.current) return;
 
       drawByBlob({
         barsData,
@@ -205,10 +210,7 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
 
     return (
       <>
-        <div
-          className={`canvas__container ${canvasContainerClassName ?? ""}`}
-          style={{ height }}
-        >
+        <div className={`canvas__container ${canvasContainerClassName ?? ""}`}>
           <canvas
             height={height}
             width={width}
@@ -223,8 +225,15 @@ export const AudioVisualiser = forwardRef<Ref, AudioVisualiserProps>(
           >
             Your browser does not support HTML5 Canvas.
           </canvas>
-          {isProcessingRecordedAudio && (
-            <p className="canvas__audio-processing">Processing Audio...</p>
+          {isAudioProcessingTextShown && isProcessingRecordedAudio && (
+            <p
+              className={`canvas__audio-processing ${
+                audioProcessingTextClassName ?? ""
+              }`}
+              style={{ color: mainBarColor }}
+            >
+              Processing Audio...
+            </p>
           )}
           {isRecordedCanvasHovered && isProgressIndicatorOnHoverShown && (
             <div

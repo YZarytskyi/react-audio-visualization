@@ -1,6 +1,6 @@
 import React, { SetStateAction, useEffect, useState } from "react";
 
-import { AudioVisualiser } from "./components/AudioVisualizer.tsx";
+import { VoiceVisualiser } from "./components/VoiceVisualizer.tsx";
 import { useVoiceVisualization } from "./hooks/useVoiceVisualization.tsx";
 import { formatTime } from "./helpers/formatTime.ts";
 import CustomSelect, { SelectOptionsType } from "./components/CustomSelect.tsx";
@@ -75,7 +75,7 @@ const AudioUpload: React.FC = () => {
 
   return (
     <div className="container">
-      <AudioVisualiser
+      <VoiceVisualiser
         controls={recorderControls}
         ref={audioRef}
         width={width}

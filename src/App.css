@@ -65,6 +65,10 @@ input[type=number] {
     margin: 0 auto;
 }
 
+.canvas__container canvas {
+    display: block;
+}
+
 .canvas__audio-processing {
     position: absolute;
     top: 50%;
