@@ -4,7 +4,7 @@ import { getFileExtensionFromMimeType } from "../helpers/getFileExtensionFromMim
 
 import { Controls } from "../types/types.ts";
 
-export function useVoiceVisualization(): Controls {
+export function useVoiceVisualizer(): Controls {
   const [isRecordingInProgress, setIsRecordingInProgress] = useState(false);
   const [isPausedRecording, setIsPausedRecording] = useState(false);
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null);

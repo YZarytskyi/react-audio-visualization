@@ -1,10 +1,10 @@
 import React, { SetStateAction, useEffect, useState } from "react";
 
 import { VoiceVisualiser } from "./components/VoiceVisualizer.tsx";
-import { useVoiceVisualization } from "./hooks/useVoiceVisualization.tsx";
-import { formatTime } from "./helpers/formatTime.ts";
+import { useVoiceVisualizer } from "./hooks/useVoiceVisualizer.tsx";
 import CustomSelect, { SelectOptionsType } from "./components/CustomSelect.tsx";
 import { generateOptionsForSelect } from "./helpers/generateOptionsForSelect.ts";
+import { formatTime } from "./helpers/formatTime.ts";
 
 import "./App.css";
 
@@ -30,7 +30,7 @@ const AudioUpload: React.FC = () => {
     setIsProgressIndicatorTimeOnHoverShown,
   ] = useState(true);
 
-  const recorderControls = useVoiceVisualization();
+  const recorderControls = useVoiceVisualizer();
   const {
     isRecordingInProgress,
     isPausedRecording,
