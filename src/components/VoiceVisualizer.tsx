@@ -53,11 +53,12 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
         currentAudioTime,
         bufferFromRecordedBlob,
         isProcessingRecordedAudio,
+        isCleared,
         _handleTimeUpdate,
       },
       height = 200,
-      width = 1300,
-      speed = 2,
+      width = 1200,
+      speed = 3,
       backgroundColor = "transparent",
       mainBarColor = "#FFFFFF",
       secondaryBarColor = "#5e5e5e",
@@ -181,13 +182,12 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
         currentAudioTime,
         rounded,
         duration,
+        isCleared,
       });
-    }, [barsData, currentAudioTime]);
+    }, [barsData, currentAudioTime, isCleared]);
 
     useEffect(() => {
-      if (!canvasRef.current) return;
-
-      if (isProcessingRecordedAudio) {
+      if (isProcessingRecordedAudio && canvasRef.current) {
         initialCanvasSetup({
           canvas: canvasRef.current,
           backgroundColor,
@@ -276,13 +276,15 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
             </div>
           ) : null}
         </div>
-        <audio
-          ref={ref}
-          src={audioSrc}
-          onTimeUpdate={_handleTimeUpdate}
-          controls={true}
-          style={{ display: "none" }}
-        />
+        {bufferFromRecordedBlob && (
+          <audio
+            ref={ref}
+            src={audioSrc}
+            onTimeUpdate={_handleTimeUpdate}
+            controls={true}
+            style={{ display: "none" }}
+          />
+        )}
       </>
     );
   },

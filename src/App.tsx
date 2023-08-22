@@ -9,13 +9,13 @@ import { generateOptionsForSelect } from "./helpers/generateOptionsForSelect.ts"
 import "./App.css";
 
 const AudioUpload: React.FC = () => {
-  const [width, setWidth] = useState(1300);
+  const [width, setWidth] = useState(1200);
   const [height, setHeight] = useState(200);
   const [speed, setSpeed] = useState(2);
   const [backgroundColor, setBackgroundColor] = useState("transparent");
   const [mainBarColor, setMainBarColor] = useState("#FFFFFF");
   const [secondaryBarColor, setSecondaryBarColor] = useState("#5e5e5e");
-  const [barWidth, setBarWidth] = useState(2);
+  const [barWidth, setBarWidth] = useState(3);
   const [gap, setGap] = useState(1);
   const [rounded, setRounded] = useState(5);
   const [animateCurrentPick, setAnimateCurrentPick] = useState(true);
@@ -115,7 +115,7 @@ const AudioUpload: React.FC = () => {
         {recordedBlob && (
           <button onClick={saveAudioFile}>Save Audio File</button>
         )}
-        <button onClick={clearCanvas}>Clear Canvas</button>
+        <button onClick={clearCanvas}>Clear</button>
       </div>
       <div className="controls__container">
         <div className="controls__selects">

@@ -16,6 +16,7 @@ export interface Controls {
   audioSrc: string;
   isPausedRecordedAudio: boolean;
   isProcessingRecordedAudio: boolean;
+  isCleared: boolean;
   recordedBlob: Blob | null;
   bufferFromRecordedBlob: AudioBuffer | null;
   startRecording: () => void;
@@ -59,6 +60,16 @@ export interface DrawByBlob {
   currentAudioTime?: number;
   rounded: number;
   duration: number;
+  isCleared: boolean;
+}
+
+export interface PaintLineFromCenterToRightParams {
+  context: CanvasRenderingContext2D;
+  color: string;
+  rounded: number;
+  width: number;
+  height: number;
+  barWidth: number;
 }
 
 export interface GetDataForCanvasParams {

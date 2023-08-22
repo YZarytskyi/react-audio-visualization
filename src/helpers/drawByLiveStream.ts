@@ -1,5 +1,6 @@
 import { initialCanvasSetup } from "./initialCanvasSetup.ts";
 import { paintLine } from "./paintLine.ts";
+import { paintLineFromCenterToRight } from "./paintLineFromCenterToRight.ts";
 
 import { DrawByLiveStreamParams, PickItem } from "../types/types.ts";
 
@@ -14,6 +15,7 @@ export const drawByLiveStream = ({
   backgroundColor,
   barWidth,
   mainBarColor,
+  secondaryBarColor,
   rounded,
   animateCurrentPick,
 }: DrawByLiveStreamParams) => {
@@ -50,7 +52,7 @@ export const drawByLiveStream = ({
       picks.unshift(newPick);
     }
 
-    paintLineFromCenterToRight();
+    paintInitialLine();
 
     // animate current pick
     if (animateCurrentPick) {
@@ -83,18 +85,17 @@ export const drawByLiveStream = ({
     });
   } else {
     picks.length = 0;
-    paintLineFromCenterToRight();
+    paintInitialLine();
   }
 
-  function paintLineFromCenterToRight() {
-    paintLine({
+  function paintInitialLine() {
+    paintLineFromCenterToRight({
       context,
-      color: "#505050",
+      color: secondaryBarColor,
       rounded,
-      x: width / 2 + barWidth / 2,
-      y: height / 2 - 1,
-      h: 2,
-      w: width - (width / 2 + barWidth / 2),
+      width,
+      height,
+      barWidth,
     });
   }
 };

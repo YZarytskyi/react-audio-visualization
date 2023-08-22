@@ -20,6 +20,7 @@ export function useVoiceVisualization(): Controls {
   const [audioSrc, setAudioSrc] = useState("");
   const [isPausedRecordedAudio, setIsPausedRecordedAudio] = useState(true);
   const [currentAudioTime, setCurrentAudioTime] = useState(0);
+  const [isCleared, setIsCleared] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -165,6 +166,7 @@ export function useVoiceVisualization(): Controls {
     if (isRecordingInProgress) return;
 
     clearCanvas();
+    setIsCleared(false);
     setPrevTime(performance.now());
     setIsRecordingInProgress(true);
   };
@@ -187,6 +189,9 @@ export function useVoiceVisualization(): Controls {
   };
 
   const clearCanvas = () => {
+    if (rafRecordingRef.current) {
+      cancelAnimationFrame(rafRecordingRef.current);
+    }
     if (audioRef?.current) {
       audioRef.current.removeEventListener("ended", onEndedRecordedAudio);
     }
@@ -200,6 +205,14 @@ export function useVoiceVisualization(): Controls {
     }
 
     audioStream?.getTracks().forEach((track) => track.stop());
+    mediaRecorderRef.current = null;
+    audioContextRef.current = null;
+    analyserRef.current = null;
+    dataArrayRef.current = null;
+    sourceRef.current = null;
+    rafRecordingRef.current = null;
+    rafCurrentTimeUpdateRef.current = null;
+
     setAudioStream(null);
     setIsRecordingInProgress(false);
     setIsProcessingRecordedAudio(false);
@@ -214,6 +227,7 @@ export function useVoiceVisualization(): Controls {
     setIsPausedRecording(false);
     setAudioData(new Uint8Array(0));
     setError(null);
+    setIsCleared(true);
   };
 
   const togglePauseResume = () => {
@@ -280,6 +294,7 @@ export function useVoiceVisualization(): Controls {
     audioSrc,
     isPausedRecordedAudio,
     bufferFromRecordedBlob,
+    isCleared,
     startRecording,
     togglePauseResume,
     stopRecording,
