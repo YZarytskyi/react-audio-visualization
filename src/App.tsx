@@ -4,13 +4,14 @@ import { VoiceVisualiser } from "./components/VoiceVisualizer.tsx";
 import { useVoiceVisualizer } from "./hooks/useVoiceVisualizer.tsx";
 import CustomSelect, { SelectOptionsType } from "./components/CustomSelect.tsx";
 import { generateOptionsForSelect } from "./helpers/generateOptionsForSelect.ts";
+import { formatToInlineStyleValue } from "./helpers/formatToInlineStyleValue.ts";
 import { formatTime } from "./helpers/formatTime.ts";
 
 import "./App.css";
 
 const AudioUpload: React.FC = () => {
-  const [width, setWidth] = useState(1200);
-  const [height, setHeight] = useState(200);
+  const [width, setWidth] = useState("100%");
+  const [height, setHeight] = useState("200px");
   const [speed, setSpeed] = useState(3);
   const [barWidth, setBarWidth] = useState(2);
   const [gap, setGap] = useState(1);
@@ -78,8 +79,8 @@ const AudioUpload: React.FC = () => {
       <VoiceVisualiser
         controls={recorderControls}
         ref={audioRef}
-        width={width}
-        height={height}
+        width={formatToInlineStyleValue(width)}
+        height={formatToInlineStyleValue(height)}
         speed={speed}
         backgroundColor={backgroundColor}
         mainBarColor={mainBarColor}
@@ -247,19 +248,17 @@ const AudioUpload: React.FC = () => {
           <label>
             Width
             <input
-              type="number"
               className="controls__input"
               value={width}
-              onChange={(e) => setWidth(Number(e.target.value))}
+              onChange={(e) => setWidth(e.target.value)}
             />
           </label>
           <label>
             Height
             <input
-              type="number"
               className="controls__input"
               value={height}
-              onChange={(e) => setHeight(Number(e.target.value))}
+              onChange={(e) => setHeight(e.target.value)}
             />
           </label>
         </div>

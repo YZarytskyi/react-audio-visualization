@@ -4,6 +4,7 @@ import {
   forwardRef,
   useRef,
   MutableRefObject,
+  useCallback,
 } from "react";
 
 import { drawByLiveStream } from "../helpers/drawByLiveStream.ts";
@@ -12,11 +13,13 @@ import { getBarsData } from "../helpers/getBarsData.ts";
 import { initialCanvasSetup } from "../helpers/initialCanvasSetup.ts";
 
 import { BarsData, Controls, PickItem } from "../types/types.ts";
+import useResizeObserver from "../hooks/useResizeObserver.tsx";
+import { formatToInlineStyleValue } from "../helpers/formatToInlineStyleValue.ts";
 
 interface VoiceVisualiserProps {
   controls: Controls;
-  height?: number;
-  width?: number;
+  height?: string | number;
+  width?: string | number;
   speed?: number;
   backgroundColor?: string;
   mainBarColor?: string;
@@ -56,8 +59,8 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
         isCleared,
         _handleTimeUpdate,
       },
-      height = 200,
-      width = 1200,
+      width = "100%",
+      height = "200px",
       speed = 3,
       backgroundColor = "transparent",
       mainBarColor = "#FFFFFF",
@@ -85,6 +88,8 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
     const [barsData, setBarsData] = useState<BarsData[]>([]);
     const [isRecordedCanvasHovered, setIsRecordedCanvasHovered] =
       useState(false);
+    const [canvasCurrentWidth, setCanvasCurrentWidth] = useState(0);
+    const [canvasCurrentHeight, setCanvasCurrentHeight] = useState(0);
 
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const picksRef = useRef<Array<PickItem | null>>([]);
@@ -93,6 +98,13 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
     const index2Ref = useRef(0);
 
     const unit = barWidth + gap * barWidth;
+
+    const onResize = useCallback((target: HTMLDivElement) => {
+      setCanvasCurrentWidth(target.clientWidth);
+      setCanvasCurrentHeight(target.clientHeight);
+    }, []);
+
+    const canvasContainerRef = useResizeObserver(onResize);
 
     useEffect(() => {
       if (!bufferFromRecordedBlob) return;
@@ -142,7 +154,7 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
       }
 
       indexSpeedRef.current += 1;
-    }, [canvasRef.current, audioData]);
+    }, [canvasRef.current, audioData, canvasCurrentWidth, canvasCurrentHeight]);
 
     useEffect(() => {
       if (
@@ -156,7 +168,13 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
       const processBlob = () => {
         picksRef.current = [];
         setBarsData(
-          getBarsData(bufferFromRecordedBlob, height, width, barWidth, gap),
+          getBarsData(
+            bufferFromRecordedBlob,
+            canvasCurrentHeight,
+            canvasCurrentWidth,
+            barWidth,
+            gap,
+          ),
         );
       };
       void processBlob();
@@ -166,7 +184,13 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
       return () => {
         canvasRef.current?.removeEventListener("mousemove", setCurrentOffsetX);
       };
-    }, [bufferFromRecordedBlob]);
+    }, [
+      bufferFromRecordedBlob,
+      canvasCurrentWidth,
+      canvasCurrentHeight,
+      gap,
+      barWidth,
+    ]);
 
     useEffect(() => {
       if (onlyRecording || !barsData.length || !canvasRef.current) return;
@@ -175,7 +199,7 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
         barsData,
         canvas: canvasRef.current,
         barWidth,
-        gap: gap,
+        gap,
         backgroundColor,
         mainBarColor,
         secondaryBarColor,
@@ -184,7 +208,15 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
         duration,
         isCleared,
       });
-    }, [barsData, currentAudioTime, isCleared]);
+    }, [
+      barsData,
+      currentAudioTime,
+      isCleared,
+      rounded,
+      backgroundColor,
+      mainBarColor,
+      secondaryBarColor,
+    ]);
 
     useEffect(() => {
       if (isProcessingRecordedAudio && canvasRef.current) {
@@ -209,16 +241,24 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
 
     return (
       <>
-        <div className={`canvas__container ${canvasContainerClassName ?? ""}`}>
+        <div
+          className={`canvas__container ${canvasContainerClassName ?? ""}`}
+          ref={canvasContainerRef}
+          style={{
+            height: formatToInlineStyleValue(height),
+            width: formatToInlineStyleValue(width),
+          }}
+        >
           <canvas
-            height={height}
-            width={width}
             ref={canvasRef}
+            width={canvasCurrentWidth}
+            height={canvasCurrentHeight}
             onClick={() => {
               if ((ref as MutableRefObject<HTMLAudioElement>)?.current) {
                 (
                   ref as MutableRefObject<HTMLAudioElement>
-                ).current.currentTime = (duration / width) * offsetX;
+                ).current.currentTime =
+                  (duration / canvasCurrentWidth) * offsetX;
               }
             }}
           >
@@ -250,7 +290,7 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
                     progressIndicatorTimeOnHoverClassName ?? ""
                   }`}
                 >
-                  {((duration / width) * offsetX).toFixed(2)}
+                  {((duration / canvasCurrentWidth) * offsetX).toFixed(2)}
                 </p>
               )}
             </div>
@@ -261,7 +301,7 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
                 progressIndicatorClassName ?? ""
               }`}
               style={{
-                left: (currentAudioTime / duration) * width,
+                left: (currentAudioTime / duration) * canvasCurrentWidth,
               }}
             >
               {isProgressIndicatorTimeShown && (

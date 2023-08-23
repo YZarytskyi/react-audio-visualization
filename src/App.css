@@ -61,7 +61,6 @@ input[type=number] {
 
 .canvas__container {
     position: relative;
-    width: fit-content;
     margin: 0 auto;
 }
 
