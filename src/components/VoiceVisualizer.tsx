@@ -15,6 +15,7 @@ import { initialCanvasSetup } from "../helpers/initialCanvasSetup.ts";
 import { BarsData, Controls, PickItem } from "../types/types.ts";
 import useResizeObserver from "../hooks/useResizeObserver.tsx";
 import { formatToInlineStyleValue } from "../helpers/formatToInlineStyleValue.ts";
+import { formatRecordedAudioTime } from "../helpers/formatRecordedAudioTime.ts";
 
 interface VoiceVisualiserProps {
   controls: Controls;
@@ -60,7 +61,7 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
         _handleTimeUpdate,
       },
       width = "100%",
-      height = "200px",
+      height = 200,
       speed = 3,
       backgroundColor = "transparent",
       mainBarColor = "#FFFFFF",
@@ -86,10 +87,10 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
   ) => {
     const [offsetX, setOffsetX] = useState(0);
     const [barsData, setBarsData] = useState<BarsData[]>([]);
-    const [isRecordedCanvasHovered, setIsRecordedCanvasHovered] =
-      useState(false);
     const [canvasCurrentWidth, setCanvasCurrentWidth] = useState(0);
     const [canvasCurrentHeight, setCanvasCurrentHeight] = useState(0);
+    const [isRecordedCanvasHovered, setIsRecordedCanvasHovered] =
+      useState(false);
 
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const picksRef = useRef<Array<PickItem | null>>([]);
@@ -128,7 +129,7 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
           );
         }
       };
-    }, [isRecordedCanvasHovered]);
+    }, [isRecordedCanvasHovered, bufferFromRecordedBlob]);
 
     useEffect(() => {
       if (!canvasRef.current) return;
@@ -274,28 +275,36 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
               Processing Audio...
             </p>
           )}
-          {isRecordedCanvasHovered && isProgressIndicatorOnHoverShown && (
-            <div
-              className={`progressIndicatorHovered ${
-                progressIndicatorOnHoverClassName ?? ""
-              }`}
-              style={{
-                left: offsetX,
-                display: recordedBlob ? "block" : "none",
-              }}
-            >
-              {isProgressIndicatorTimeOnHoverShown && (
-                <p
-                  className={`progressIndicatorHovered__time ${
-                    progressIndicatorTimeOnHoverClassName ?? ""
-                  }`}
-                >
-                  {((duration / canvasCurrentWidth) * offsetX).toFixed(2)}
-                </p>
-              )}
-            </div>
-          )}
-          {recordedBlob && duration && isProgressIndicatorShown ? (
+          {isRecordedCanvasHovered &&
+            bufferFromRecordedBlob &&
+            isProgressIndicatorOnHoverShown && (
+              <div
+                className={`progressIndicatorHovered ${
+                  progressIndicatorOnHoverClassName ?? ""
+                }`}
+                style={{
+                  left: offsetX,
+                  display: recordedBlob ? "block" : "none",
+                }}
+              >
+                {isProgressIndicatorTimeOnHoverShown && (
+                  <p
+                    className={`progressIndicatorHovered__time 
+                    ${
+                      canvasCurrentWidth - offsetX < 70
+                        ? "progressIndicatorHovered__time-left"
+                        : ""
+                    } 
+                    ${progressIndicatorTimeOnHoverClassName ?? ""}`}
+                  >
+                    {formatRecordedAudioTime(
+                      (duration / canvasCurrentWidth) * offsetX,
+                    )}
+                  </p>
+                )}
+              </div>
+            )}
+          {bufferFromRecordedBlob && duration && isProgressIndicatorShown ? (
             <div
               className={`progressIndicator ${
                 progressIndicatorClassName ?? ""
@@ -307,10 +316,14 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
               {isProgressIndicatorTimeShown && (
                 <p
                   className={`progressIndicator__time ${
-                    progressIndicatorTimeClassName ?? ""
-                  }`}
+                    canvasCurrentWidth -
+                      (currentAudioTime * canvasCurrentWidth) / duration <
+                    70
+                      ? "progressIndicator__time-left"
+                      : ""
+                  } ${progressIndicatorTimeClassName ?? ""}`}
                 >
-                  {currentAudioTime.toFixed(2)}
+                  {formatRecordedAudioTime(currentAudioTime)}
                 </p>
               )}
             </div>

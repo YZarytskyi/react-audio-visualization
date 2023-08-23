@@ -89,11 +89,17 @@ input[type=number] {
     top: 2%;
     left: 1px;
     width: fit-content;
-    padding: 0 8px;
+    padding: 0 7px;
     font-size: 12px;
     border-radius: 0 4px 4px 0;
     background-color: #575757;
     opacity: 0.8;
+}
+
+.progressIndicatorHovered__time.progressIndicatorHovered__time-left {
+    left: unset;
+    right: 1px;
+    border-radius: 4px 0 0 4px;
 }
 
 .progressIndicator {
@@ -110,12 +116,18 @@ input[type=number] {
     top: 2%;
     left: 1px;
     width: fit-content;
-    padding: 0 8px;
+    padding: 0 7px;
     font-size: 12px;
     border-radius: 0 4px 4px 0;
     color: black;
     font-weight: 500;
     background-color: #efefef;
+}
+
+.progressIndicator__time.progressIndicator__time-left {
+    left: unset;
+    right: 1px;
+    border-radius: 4px 0 0 4px;
 }
 
 .audioInfo__container {

@@ -1,17 +1,17 @@
 import React, { SetStateAction, useEffect, useState } from "react";
 
+import CustomSelect, { SelectOptionsType } from "./components/CustomSelect.tsx";
 import { VoiceVisualiser } from "./components/VoiceVisualizer.tsx";
 import { useVoiceVisualizer } from "./hooks/useVoiceVisualizer.tsx";
-import CustomSelect, { SelectOptionsType } from "./components/CustomSelect.tsx";
 import { generateOptionsForSelect } from "./helpers/generateOptionsForSelect.ts";
 import { formatToInlineStyleValue } from "./helpers/formatToInlineStyleValue.ts";
-import { formatTime } from "./helpers/formatTime.ts";
+import { formatRecordingTime } from "./helpers/formatRecordingTime.ts";
 
 import "./App.css";
 
 const AudioUpload: React.FC = () => {
   const [width, setWidth] = useState("100%");
-  const [height, setHeight] = useState("200px");
+  const [height, setHeight] = useState("200");
   const [speed, setSpeed] = useState(3);
   const [barWidth, setBarWidth] = useState(2);
   const [gap, setGap] = useState(1);
@@ -97,7 +97,9 @@ const AudioUpload: React.FC = () => {
         }
       />
       <div className="audioInfo__container">
-        {isRecordingInProgress && <p>Time: {formatTime(recordingTime)}</p>}
+        {isRecordingInProgress && (
+          <p>Time: {formatRecordingTime(recordingTime)}</p>
+        )}
         {duration ? <p>Duration: {duration.toFixed(2)}s</p> : null}
       </div>
       <div className="buttons__container">
