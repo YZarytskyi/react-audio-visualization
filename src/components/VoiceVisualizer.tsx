@@ -334,6 +334,7 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
               src={microphoneIcon}
               alt="Microphone"
               className="canvas__microphone-icon"
+              style={{ filter: "invert(1)" }}
             />
           )}
           {isAudioProcessingTextShown && isProcessingRecordedAudio && (
