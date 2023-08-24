@@ -105,8 +105,9 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
 
     const onResize = useCallback((target: HTMLDivElement) => {
       const roundedWidth = Math.floor(target.clientWidth / 2) * 2;
+      const roundedHeight = Math.trunc(target.clientHeight);
       setCanvasCurrentWidth(roundedWidth);
-      setCanvasCurrentHeight(target.clientHeight);
+      setCanvasCurrentHeight(roundedHeight);
     }, []);
 
     const canvasContainerRef = useResizeObserver(onResize);
@@ -213,6 +214,8 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
 
     useEffect(() => {
       if (onlyRecording || !barsData.length || !canvasRef.current) return;
+
+      if (isCleared) setBarsData([]);
 
       drawByBlob({
         barsData,
