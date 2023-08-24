@@ -3,19 +3,24 @@ import {
   useEffect,
   forwardRef,
   useRef,
-  MutableRefObject,
   useCallback,
+  MutableRefObject,
 } from "react";
 
+import useResizeObserver from "../hooks/useResizeObserver.tsx";
 import { drawByLiveStream } from "../helpers/drawByLiveStream.ts";
 import { drawByBlob } from "../helpers/drawByBlob.ts";
 import { getBarsData } from "../helpers/getBarsData.ts";
 import { initialCanvasSetup } from "../helpers/initialCanvasSetup.ts";
-
-import { BarsData, Controls, PickItem } from "../types/types.ts";
-import useResizeObserver from "../hooks/useResizeObserver.tsx";
 import { formatToInlineStyleValue } from "../helpers/formatToInlineStyleValue.ts";
 import { formatRecordedAudioTime } from "../helpers/formatRecordedAudioTime.ts";
+import { formatRecordingTime } from "../helpers/formatRecordingTime.ts";
+import { BarsData, Controls, PickItem } from "../types/types.ts";
+
+import playIcon from "../assets/play.svg";
+import pauseIcon from "../assets/pause.svg";
+import microphoneIcon from "../assets/microphone.svg";
+import stopIcon from "../assets/stop.svg";
 
 interface VoiceVisualiserProps {
   controls: Controls;
@@ -29,6 +34,8 @@ interface VoiceVisualiserProps {
   gap?: number;
   rounded?: number;
   fullscreen?: boolean;
+  isControlPanelShown?: boolean;
+  isDownloadAudioButtonShown?: boolean;
   animateCurrentPick?: boolean;
   onlyRecording?: boolean;
   isLineFromCenterToRightShownBeforeRecording?: boolean;
@@ -58,6 +65,13 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
         audioSrc,
         currentAudioTime,
         bufferFromRecordedBlob,
+        togglePauseResume,
+        startRecording,
+        stopRecording,
+        saveAudioFile,
+        recordingTime,
+        isPausedRecordedAudio,
+        isPausedRecording,
         isProcessingRecordedAudio,
         isCleared,
         clearCanvas,
@@ -72,6 +86,8 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
       barWidth = 2,
       gap = 1,
       rounded = 5,
+      isControlPanelShown = true,
+      isDownloadAudioButtonShown = false,
       animateCurrentPick = true,
       fullscreen = true,
       onlyRecording = false,
@@ -113,6 +129,16 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
     }, []);
 
     const canvasContainerRef = useResizeObserver(onResize);
+
+    useEffect(() => {
+      if (isRecordingInProgress || recordedBlob) {
+        window.addEventListener("beforeunload", handleBeforeUnload);
+      }
+
+      return () => {
+        window.removeEventListener("beforeunload", handleBeforeUnload);
+      };
+    }, [isRecordingInProgress, recordedBlob]);
 
     useEffect(() => {
       if (!bufferFromRecordedBlob) return;
@@ -257,6 +283,11 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
       }
     }, [isProcessingRecordedAudio]);
 
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+
     const showTimeIndicator = () => {
       setIsRecordedCanvasHovered(true);
     };
@@ -267,6 +298,10 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
 
     const setCurrentOffsetX = (e: MouseEvent) => {
       setOffsetX(e.offsetX);
+    };
+
+    const onClickStartRecording = () => {
+      isRecordingInProgress ? togglePauseResume() : startRecording();
     };
 
     return (
@@ -358,6 +393,66 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
             </div>
           ) : null}
         </div>
+
+        {isControlPanelShown && (
+          <>
+            <div className="audioInfo__container">
+              {isRecordingInProgress && (
+                <p className="audioInfo__current-time">
+                  Time: {formatRecordingTime(recordingTime)}
+                </p>
+              )}
+              {duration ? <p>Duration: {duration.toFixed(2)}s</p> : null}
+            </div>
+
+            <div className="buttons__container">
+              {recordedBlob && (
+                <button
+                  className="btn__stop-recording"
+                  onClick={togglePauseResume}
+                >
+                  <img
+                    src={isPausedRecordedAudio ? playIcon : pauseIcon}
+                    alt="Pause"
+                  />
+                </button>
+              )}
+              <button
+                className={`btn__start-recording ${
+                  isRecordingInProgress && !isPausedRecording
+                    ? "btn__start-recording-pause"
+                    : ""
+                }`}
+                onClick={onClickStartRecording}
+              >
+                <img
+                  src={
+                    isRecordingInProgress && !isPausedRecording
+                      ? pauseIcon
+                      : microphoneIcon
+                  }
+                  alt="Microphone"
+                />
+              </button>
+              {isRecordingInProgress && (
+                <button onClick={stopRecording} className="btn__stop-recording">
+                  <img src={stopIcon} alt="Stop" />
+                </button>
+              )}
+              {(isRecordingInProgress || recordedBlob) && (
+                <button onClick={clearCanvas} className="btn">
+                  Clear
+                </button>
+              )}
+              {isDownloadAudioButtonShown && recordedBlob && (
+                <button onClick={saveAudioFile} className="btn">
+                  Download Audio
+                </button>
+              )}
+            </div>
+          </>
+        )}
+
         {bufferFromRecordedBlob && (
           <audio
             ref={ref}

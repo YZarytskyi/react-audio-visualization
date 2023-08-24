@@ -121,6 +121,10 @@
     margin-left: 7px;
 }
 
+.tooltip__container {
+    max-width: 300px;
+}
+
 .controls__input {
     box-sizing: border-box;
     width: 120px;

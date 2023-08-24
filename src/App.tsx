@@ -6,14 +6,8 @@ import { VoiceVisualiser } from "./components/VoiceVisualizer.tsx";
 import { useVoiceVisualizer } from "./hooks/useVoiceVisualizer.tsx";
 import { generateOptionsForSelect } from "./helpers/generateOptionsForSelect.ts";
 import { formatToInlineStyleValue } from "./helpers/formatToInlineStyleValue.ts";
-import { formatRecordingTime } from "./helpers/formatRecordingTime.ts";
 
 import "./App.css";
-
-import microphoneIcon from "./assets/microphone.svg";
-import stopIcon from "./assets/stop.svg";
-import playIcon from "./assets/play.svg";
-import pauseIcon from "./assets/pause.svg";
 
 const App: FC = () => {
   const [width, setWidth] = useState("100%");
@@ -22,6 +16,9 @@ const App: FC = () => {
   const [barWidth, setBarWidth] = useState(2);
   const [gap, setGap] = useState(1);
   const [rounded, setRounded] = useState(5);
+  const [isControlPanelShown, setIsControlPanelShown] = useState(true);
+  const [isDownloadAudioButtonShown, setIsDownloadAudioButtonShown] =
+    useState(false);
   const [backgroundColor, setBackgroundColor] = useState("transparent");
   const [mainBarColor, setMainBarColor] = useState("#FFFFFF");
   const [secondaryBarColor, setSecondaryBarColor] = useState("#5e5e5e");
@@ -44,21 +41,7 @@ const App: FC = () => {
   ] = useState(true);
 
   const recorderControls = useVoiceVisualizer();
-  const {
-    isRecordingInProgress,
-    isPausedRecording,
-    startRecording,
-    togglePauseResume,
-    stopRecording,
-    saveAudioFile,
-    clearCanvas,
-    recordedBlob,
-    recordingTime,
-    isPausedRecordedAudio,
-    duration,
-    error,
-    audioRef,
-  } = recorderControls;
+  const { recordedBlob, error, audioRef } = recorderControls;
 
   useEffect(() => {
     if (!recordedBlob) return;
@@ -71,10 +54,6 @@ const App: FC = () => {
 
     console.log(error);
   }, [error]);
-
-  const onClickStartRecording = () => {
-    isRecordingInProgress ? togglePauseResume() : startRecording();
-  };
 
   function onChangeSelect<T>(
     newValueObj: unknown,
@@ -102,6 +81,8 @@ const App: FC = () => {
         barWidth={barWidth}
         gap={gap}
         rounded={rounded}
+        isControlPanelShown={isControlPanelShown}
+        isDownloadAudioButtonShown={isDownloadAudioButtonShown}
         fullscreen={fullscreen}
         onlyRecording={onlyRecording}
         animateCurrentPick={animateCurrentPick}
@@ -116,72 +97,18 @@ const App: FC = () => {
         }
       />
 
-      <div className="audioInfo__container">
-        {isRecordingInProgress && (
-          <p className="audioInfo__current-time">
-            Time: {formatRecordingTime(recordingTime)}
-          </p>
-        )}
-        {duration ? <p>Duration: {duration.toFixed(2)}s</p> : null}
-      </div>
-
-      <div className="buttons__container">
-        {recordedBlob && (
-          <button className="btn__stop-recording" onClick={togglePauseResume}>
-            <img
-              src={isPausedRecordedAudio ? playIcon : pauseIcon}
-              alt="Pause"
-            />
-          </button>
-        )}
-        <button
-          className={`btn__start-recording ${
-            isRecordingInProgress && !isPausedRecording
-              ? "btn__start-recording-pause"
-              : ""
-          }`}
-          onClick={onClickStartRecording}
-        >
-          <img
-            src={
-              isRecordingInProgress && !isPausedRecording
-                ? pauseIcon
-                : microphoneIcon
-            }
-            alt="Microphone"
-          />
-        </button>
-        {isRecordingInProgress && (
-          <button onClick={stopRecording} className="btn__stop-recording">
-            <img src={stopIcon} alt="Stop" />
-          </button>
-        )}
-        {(isRecordingInProgress || recordedBlob) && (
-          <button onClick={clearCanvas} className="btn">
-            Clear
-          </button>
-        )}
-        {recordedBlob && (
-          <button onClick={saveAudioFile} className="btn">
-            Download Audio
-          </button>
-        )}
-      </div>
-
       <h2 className="subtitle">Props</h2>
 
       <div className="controls__container">
         <div className="controls__selects">
           <label>
-            Width
             <span
-              className="tooltip__info"
               data-tooltip-id="tooltip-width"
               data-tooltip-content="The width of the visualization canvas"
             >
-              &#9432;
+              width &#9432;
             </span>
-            <Tooltip id="tooltip-width" />
+            <Tooltip className="tooltip__container" id="tooltip-width" />
             <input
               className="controls__input"
               value={width}
@@ -189,15 +116,13 @@ const App: FC = () => {
             />
           </label>
           <label>
-            Height
             <span
-              className="tooltip__info"
               data-tooltip-id="tooltip-height"
               data-tooltip-content="The height of the visualization canvas"
             >
-              &#9432;
+              height &#9432;
             </span>
-            <Tooltip id="tooltip-height" />
+            <Tooltip className="tooltip__container" id="tooltip-height" />
             <input
               className="controls__input"
               value={height}
@@ -205,15 +130,13 @@ const App: FC = () => {
             />
           </label>
           <label>
-            Speed
             <span
-              className="tooltip__info"
               data-tooltip-id="tooltip-speed"
               data-tooltip-content="The speed of the audio visualization animation (1 to 5, higher number is slower)"
             >
-              &#9432;
+              speed &#9432;
             </span>
-            <Tooltip id="tooltip-speed" />
+            <Tooltip className="tooltip__container" id="tooltip-speed" />
             <CustomSelect
               options={generateOptionsForSelect([1, 2, 3, 4, 5])}
               defaultValue={generateOptionsForSelect([speed])}
@@ -222,15 +145,13 @@ const App: FC = () => {
             />
           </label>
           <label>
-            BarWidth
             <span
-              className="tooltip__info"
               data-tooltip-id="tooltip-bar-width"
               data-tooltip-content="The width of each audio wave bar"
             >
-              &#9432;
+              barWidth &#9432;
             </span>
-            <Tooltip id="tooltip-bar-width" />
+            <Tooltip className="tooltip__container" id="tooltip-bar-width" />
             <CustomSelect
               options={generateOptionsForSelect([
                 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
@@ -241,15 +162,13 @@ const App: FC = () => {
             />
           </label>
           <label>
-            Gap
             <span
-              className="tooltip__info"
               data-tooltip-id="tooltip-gap"
               data-tooltip-content="The gap between each audio wave bar"
             >
-              &#9432;
+              gap &#9432;
             </span>
-            <Tooltip id="tooltip-gap" />
+            <Tooltip className="tooltip__container" id="tooltip-gap" />
             <CustomSelect
               options={generateOptionsForSelect([
                 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
@@ -260,15 +179,13 @@ const App: FC = () => {
             />
           </label>
           <label>
-            Rounded
             <span
-              className="tooltip__info"
               data-tooltip-id="tooltip-rounded"
               data-tooltip-content="The border radius of the audio wave bars"
             >
-              &#9432;
+              rounded &#9432;
             </span>
-            <Tooltip id="tooltip-rounded" />
+            <Tooltip className="tooltip__container" id="tooltip-rounded" />
             <CustomSelect
               options={generateOptionsForSelect([0, 1, 2, 3, 4, 5])}
               defaultValue={generateOptionsForSelect([rounded])}
@@ -277,15 +194,13 @@ const App: FC = () => {
             />
           </label>
           <label>
-            Fullscreen
             <span
-              className="tooltip__info"
               data-tooltip-id="tooltip-fullscreen"
               data-tooltip-content="Whether the visualization should be displayed in fullscreen mode. It begins from the center by default"
             >
-              &#9432;
+              fullscreen &#9432;
             </span>
-            <Tooltip id="tooltip-fullscreen" />
+            <Tooltip className="tooltip__container" id="tooltip-fullscreen" />
             <CustomSelect
               options={generateOptionsForSelect(["true", "false"])}
               defaultValue={generateOptionsForSelect(["false"])}
@@ -294,15 +209,16 @@ const App: FC = () => {
             />
           </label>
           <label>
-            OnlyRecording
             <span
-              className="tooltip__info"
               data-tooltip-id="tooltip-only-recording"
               data-tooltip-content="Whether to show the visualization only during voice recording"
             >
-              &#9432;
+              onlyRecording &#9432;
             </span>
-            <Tooltip id="tooltip-only-recording" />
+            <Tooltip
+              className="tooltip__container"
+              id="tooltip-only-recording"
+            />
             <CustomSelect
               options={generateOptionsForSelect(["true", "false"])}
               defaultValue={generateOptionsForSelect(["false"])}
@@ -316,15 +232,13 @@ const App: FC = () => {
 
         <div className="controls__inputs">
           <label>
-            BackgroundColor
             <span
-              className="tooltip__info"
               data-tooltip-id="tooltip-background"
               data-tooltip-content="The background color of the visualization canvas"
             >
-              &#9432;
+              backgroundColor &#9432;
             </span>
-            <Tooltip id="tooltip-background" />
+            <Tooltip className="tooltip__container" id="tooltip-background" />
             <input
               className="controls__input"
               value={backgroundColor}
@@ -332,15 +246,13 @@ const App: FC = () => {
             />
           </label>
           <label>
-            MainBarColor
             <span
-              className="tooltip__info"
               data-tooltip-id="tooltip-main-color"
               data-tooltip-content="The color of the main audio wave line"
             >
-              &#9432;
+              mainBarColor &#9432;
             </span>
-            <Tooltip id="tooltip-main-color" />
+            <Tooltip className="tooltip__container" id="tooltip-main-color" />
             <input
               className="controls__input"
               value={mainBarColor}
@@ -348,15 +260,16 @@ const App: FC = () => {
             />
           </label>
           <label>
-            SecondaryBarColor
             <span
-              className="tooltip__info"
               data-tooltip-id="tooltip-secondary-color"
               data-tooltip-content="The secondary color of the audio wave line"
             >
-              &#9432;
+              secondaryBarColor &#9432;
             </span>
-            <Tooltip id="tooltip-secondary-color" />
+            <Tooltip
+              className="tooltip__container"
+              id="tooltip-secondary-color"
+            />
             <input
               className="controls__input"
               value={secondaryBarColor}
@@ -364,15 +277,50 @@ const App: FC = () => {
             />
           </label>
           <label>
-            IsLineFromCenterToRightShownBeforeRecording
             <span
-              className="tooltip__info"
-              data-tooltip-id="tooltip-default-line"
-              data-tooltip-content="Whether to show the visualization only during voice recording"
+              data-tooltip-id="tooltip-control-panel"
+              data-tooltip-content="Whether to display the audio control panel, including features such as recorded audio duration, current recording time, and control buttons. If you want to create your own UI, set it to false and utilize functions from the useVoiceVisualizer hook to manage audio control."
             >
-              &#9432;
+              isControlPanelShown &#9432;
             </span>
-            <Tooltip id="tooltip__default-line" />
+            <Tooltip
+              className="tooltip__container"
+              id="tooltip-control-panel"
+            />
+            <CustomSelect
+              options={generateOptionsForSelect(["true", "false"])}
+              defaultValue={generateOptionsForSelect(["true"])}
+              width="100px"
+              onChange={(newValue) =>
+                onChangeSelect(newValue, setIsControlPanelShown)
+              }
+            />
+          </label>
+          <label>
+            <span
+              data-tooltip-id="tooltip-download-btn"
+              data-tooltip-content="Whether to display the Download audio button"
+            >
+              isDownloadAudioButtonShown &#9432;
+            </span>
+            <Tooltip className="tooltip__container" id="tooltip-download-btn" />
+            <CustomSelect
+              options={generateOptionsForSelect(["true", "false"])}
+              defaultValue={generateOptionsForSelect(["true"])}
+              width="100px"
+              onChange={(newValue) =>
+                onChangeSelect(newValue, setIsDownloadAudioButtonShown)
+              }
+            />
+          </label>
+          <label>
+            <span
+              data-tooltip-id="tooltip-default-line"
+              data-tooltip-content="Whether to show a line from center to right before recording"
+            >
+              isLineFromCenterToRightShownBeforeRecording &#9432;
+            </span>
+            <Tooltip className="tooltip__container" id="tooltip-default-line" />
             <CustomSelect
               options={generateOptionsForSelect(["true", "false"])}
               defaultValue={generateOptionsForSelect(["true"])}
@@ -389,15 +337,13 @@ const App: FC = () => {
 
         <div className="controls__selects">
           <label>
-            AnimateCurrentPick
             <span
-              className="tooltip__info"
               data-tooltip-id="tooltip-animate-pick"
               data-tooltip-content="Whether to animate the current pick in the visualization"
             >
-              &#9432;
+              animateCurrentPick &#9432;
             </span>
-            <Tooltip id="tooltip-animate-pick" />
+            <Tooltip className="tooltip__container" id="tooltip-animate-pick" />
             <CustomSelect
               options={generateOptionsForSelect(["true", "false"])}
               defaultValue={generateOptionsForSelect(["true"])}
@@ -408,15 +354,16 @@ const App: FC = () => {
             />
           </label>
           <label>
-            IsProgressIndicatorShown
             <span
-              className="tooltip__info"
               data-tooltip-id="tooltip-progress-indicator"
               data-tooltip-content="Whether to show the progress indicator after recording"
             >
-              &#9432;
+              isProgressIndicatorShown &#9432;
             </span>
-            <Tooltip id="tooltip-progress-indicator" />
+            <Tooltip
+              className="tooltip__container"
+              id="tooltip-progress-indicator"
+            />
             <CustomSelect
               options={generateOptionsForSelect(["true", "false"])}
               defaultValue={generateOptionsForSelect(["true"])}
@@ -427,15 +374,16 @@ const App: FC = () => {
             />
           </label>
           <label>
-            IsProgressIndicatorTimeShown
             <span
-              className="tooltip__info"
               data-tooltip-id="tooltip-progress-indicator-time"
               data-tooltip-content="Whether to show the progress indicator time"
             >
-              &#9432;
+              isProgressIndicatorTimeShown &#9432;
             </span>
-            <Tooltip id="tooltip-progress-indicator-time" />
+            <Tooltip
+              className="tooltip__container"
+              id="tooltip-progress-indicator-time"
+            />
             <CustomSelect
               options={generateOptionsForSelect(["true", "false"])}
               defaultValue={generateOptionsForSelect(["true"])}
@@ -446,15 +394,16 @@ const App: FC = () => {
             />
           </label>
           <label>
-            IsProgressIndicatorOnHoverShown
             <span
-              className="tooltip__info"
               data-tooltip-id="tooltip-progress-indicator-hover"
               data-tooltip-content="Whether to show the progress indicator on hover"
             >
-              &#9432;
+              isProgressIndicatorOnHoverShown &#9432;
             </span>
-            <Tooltip id="tooltip-progress-indicator-hover" />
+            <Tooltip
+              className="tooltip__container"
+              id="tooltip-progress-indicator-hover"
+            />
             <CustomSelect
               options={generateOptionsForSelect(["true", "false"])}
               defaultValue={generateOptionsForSelect(["true"])}
@@ -465,15 +414,16 @@ const App: FC = () => {
             />
           </label>
           <label>
-            IsProgressIndicatorTimeOnHoverShown
             <span
-              className="tooltip__info"
               data-tooltip-id="tooltip-progress-indicator-time-hover"
               data-tooltip-content="Whether to show the progress indicator time on hover"
             >
-              &#9432;
+              isProgressIndicatorTimeOnHoverShown &#9432;
             </span>
-            <Tooltip id="tooltip-progress-indicator-time-hover" />
+            <Tooltip
+              className="tooltip__container"
+              id="tooltip-progress-indicator-time-hover"
+            />
             <CustomSelect
               options={generateOptionsForSelect(["true", "false"])}
               defaultValue={generateOptionsForSelect(["true"])}
