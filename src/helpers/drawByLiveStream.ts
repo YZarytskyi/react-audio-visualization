@@ -32,12 +32,14 @@ export const drawByLiveStream = ({
 
     if (index2.current >= barWidth) {
       index2.current = 0;
+      const newStartY = height - (maxPick / 258) * height;
+      const newHeight = -height + (maxPick / 258) * height * 2;
 
       const newPick: PickItem | null =
         index.current === barWidth
           ? {
-              startY: height - (maxPick / 260) * height,
-              height: -height + (maxPick / 260) * height * 2,
+              startY: newStartY > height / 2 - 1 ? height / 2 - 1 : newStartY,
+              height: newHeight < 2 ? 2 : newHeight,
             }
           : null;
 
@@ -63,8 +65,8 @@ export const drawByLiveStream = ({
         rounded,
         color: mainBarColor,
         x: fullscreen ? width : width / 2,
-        y: height - (maxPick / 260) * height,
-        h: -height + (maxPick / 260) * height * 2,
+        y: height - (maxPick / 258) * height,
+        h: -height + (maxPick / 258) * height * 2,
         w: barWidth,
       });
     }
