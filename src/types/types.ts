@@ -48,6 +48,7 @@ export interface DrawByLiveStreamParams {
   rounded: number;
   animateCurrentPick: boolean;
   fullscreen: boolean;
+  isLineFromCenterToRightShownBeforeRecording: boolean;
 }
 
 export interface DrawByBlob {

@@ -22,6 +22,7 @@ const selectStyles = (width: string): StylesConfig => ({
   container: (provided) => ({
     ...provided,
     marginTop: "7px",
+    width,
   }),
   valueContainer: (provided) => ({
     ...provided,

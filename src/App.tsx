@@ -1,4 +1,4 @@
-import React, { SetStateAction, useEffect, useState } from "react";
+import { FC, SetStateAction, useEffect, useState } from "react";
 import { Tooltip } from "react-tooltip";
 
 import CustomSelect, { SelectOptionsType } from "./components/CustomSelect.tsx";
@@ -15,7 +15,7 @@ import stopIcon from "./assets/stop.svg";
 import playIcon from "./assets/play.svg";
 import pauseIcon from "./assets/pause.svg";
 
-const AudioUpload: React.FC = () => {
+const App: FC = () => {
   const [width, setWidth] = useState("100%");
   const [height, setHeight] = useState("200");
   const [speed, setSpeed] = useState(3);
@@ -28,6 +28,10 @@ const AudioUpload: React.FC = () => {
   const [fullscreen, setFullscreen] = useState(false);
   const [onlyRecording, setOnlyRecording] = useState(false);
   const [animateCurrentPick, setAnimateCurrentPick] = useState(true);
+  const [
+    isLineFromCenterToRightShownBeforeRecording,
+    setIsLineFromCenterToRightShownBeforeRecording,
+  ] = useState(true);
   const [isProgressIndicatorShown, setIsProgressIndicatorShown] =
     useState(true);
   const [isProgressIndicatorTimeShown, setIsProgressIndicatorTimeShown] =
@@ -101,6 +105,9 @@ const AudioUpload: React.FC = () => {
         fullscreen={fullscreen}
         onlyRecording={onlyRecording}
         animateCurrentPick={animateCurrentPick}
+        isLineFromCenterToRightShownBeforeRecording={
+          isLineFromCenterToRightShownBeforeRecording
+        }
         isProgressIndicatorShown={isProgressIndicatorShown}
         isProgressIndicatorTimeShown={isProgressIndicatorTimeShown}
         isProgressIndicatorOnHoverShown={isProgressIndicatorOnHoverShown}
@@ -291,7 +298,7 @@ const AudioUpload: React.FC = () => {
             <span
               className="tooltip__info"
               data-tooltip-id="tooltip-only-recording"
-              data-tooltip-content="Whether to display an audio wave visualization after recording"
+              data-tooltip-content="Whether to show the visualization only during voice recording"
             >
               &#9432;
             </span>
@@ -354,6 +361,28 @@ const AudioUpload: React.FC = () => {
               className="controls__input"
               value={secondaryBarColor}
               onChange={(e) => setSecondaryBarColor(e.target.value)}
+            />
+          </label>
+          <label>
+            IsLineFromCenterToRightShownBeforeRecording
+            <span
+              className="tooltip__info"
+              data-tooltip-id="tooltip-default-line"
+              data-tooltip-content="Whether to show the visualization only during voice recording"
+            >
+              &#9432;
+            </span>
+            <Tooltip id="tooltip__default-line" />
+            <CustomSelect
+              options={generateOptionsForSelect(["true", "false"])}
+              defaultValue={generateOptionsForSelect(["true"])}
+              width="100px"
+              onChange={(newValue) =>
+                onChangeSelect(
+                  newValue,
+                  setIsLineFromCenterToRightShownBeforeRecording,
+                )
+              }
             />
           </label>
         </div>
@@ -460,4 +489,4 @@ const AudioUpload: React.FC = () => {
   );
 };
 
-export default AudioUpload;
+export default App;

@@ -18,7 +18,10 @@
 .buttons__container {
     display: flex;
     justify-content: center;
-    gap: 20px;
+    align-items: center;
+    column-gap: 20px;
+    row-gap: 15px;
+    flex-wrap: wrap;
     margin-bottom: 40px;
 }
 
@@ -29,6 +32,7 @@
 
 .btn__start-recording {
     box-sizing: border-box;
+    flex-shrink: 0;
     width: 60px;
     height: 60px;
     padding: 0;
@@ -64,6 +68,7 @@
 
 .btn__stop-recording {
     box-sizing: border-box;
+    flex-shrink: 0;
     width: 60px;
     height: 60px;
     padding: 0;
@@ -91,6 +96,7 @@
 .btn {
     box-sizing: border-box;
     min-width: 100px;
+    min-height: 60px;
     padding: 5px 20px;
     border-radius: 40px;
     font-size: 15px;

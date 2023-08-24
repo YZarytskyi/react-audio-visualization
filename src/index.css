@@ -13,6 +13,16 @@
     -webkit-text-size-adjust: 100%;
 }
 
+#root {
+    padding: 30px
+}
+
+@media screen and (max-width: 768px) {
+    #root {
+        padding: 10px
+    }
+}
+
 button {
     border: none;
     outline: none;

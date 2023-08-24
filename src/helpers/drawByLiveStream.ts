@@ -19,6 +19,7 @@ export const drawByLiveStream = ({
   rounded,
   animateCurrentPick,
   fullscreen,
+  isLineFromCenterToRightShownBeforeRecording,
 }: DrawByLiveStreamParams) => {
   const canvasData = initialCanvasSetup({ canvas, backgroundColor });
   if (!canvasData) return;
@@ -86,7 +87,9 @@ export const drawByLiveStream = ({
     });
   } else {
     picks.length = 0;
-    !fullscreen && paintInitialLine();
+    isLineFromCenterToRightShownBeforeRecording &&
+      !fullscreen &&
+      paintInitialLine();
   }
 
   function paintInitialLine() {

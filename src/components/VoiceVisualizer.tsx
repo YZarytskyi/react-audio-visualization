@@ -31,6 +31,7 @@ interface VoiceVisualiserProps {
   fullscreen?: boolean;
   animateCurrentPick?: boolean;
   onlyRecording?: boolean;
+  isLineFromCenterToRightShownBeforeRecording?: boolean;
   canvasContainerClassName?: string;
   isProgressIndicatorShown?: boolean;
   progressIndicatorClassName?: string;
@@ -74,6 +75,7 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
       animateCurrentPick = true,
       fullscreen = true,
       onlyRecording = false,
+      isLineFromCenterToRightShownBeforeRecording = false,
       canvasContainerClassName,
       isProgressIndicatorShown = true,
       progressIndicatorClassName,
@@ -157,6 +159,7 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
           rounded,
           animateCurrentPick,
           fullscreen,
+          isLineFromCenterToRightShownBeforeRecording,
         });
       }
 
@@ -167,6 +170,7 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
       canvasCurrentWidth,
       canvasCurrentHeight,
       fullscreen,
+      isLineFromCenterToRightShownBeforeRecording,
     ]);
 
     useEffect(() => {
@@ -215,7 +219,10 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
     useEffect(() => {
       if (onlyRecording || !barsData.length || !canvasRef.current) return;
 
-      if (isCleared) setBarsData([]);
+      if (isCleared) {
+        setBarsData([]);
+        if (!isLineFromCenterToRightShownBeforeRecording) return;
+      }
 
       drawByBlob({
         barsData,
@@ -238,6 +245,7 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
       backgroundColor,
       mainBarColor,
       secondaryBarColor,
+      isLineFromCenterToRightShownBeforeRecording,
     ]);
 
     useEffect(() => {
