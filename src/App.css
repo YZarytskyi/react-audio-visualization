@@ -22,6 +22,85 @@
     margin-bottom: 40px;
 }
 
+.btn__play {
+    width: 50px;
+    height: 50px;
+}
+
+.btn__start-recording {
+    box-sizing: border-box;
+    width: 60px;
+    height: 60px;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background-color: white;
+    border: 4px solid #c5c5c5;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 200ms ease-in-out;
+}
+
+.btn__start-recording > img {
+    width: auto;
+    height: 50%;
+    max-height: 30px;
+}
+
+.btn__start-recording.btn__start-recording-pause {
+    background-color: #ff3030;
+}
+
+.btn__start-recording.btn__start-recording-pause > img {
+    height: 50%;
+    max-height: 16px;
+}
+
+.btn__start-recording:hover {
+    border: 4px solid #9f9f9f;
+}
+
+.btn__stop-recording {
+    box-sizing: border-box;
+    width: 60px;
+    height: 60px;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background-color: #ff3030;
+    border: 4px solid #c5c5c5;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 200ms ease-in-out;
+}
+
+.btn__stop-recording > img {
+    width: auto;
+    height: 50%;
+    max-height: 16px;
+}
+
+.btn__stop-recording:hover {
+    border: 4px solid #9f9f9f;
+}
+
+.btn {
+    box-sizing: border-box;
+    min-width: 100px;
+    padding: 5px 20px;
+    border-radius: 40px;
+    font-size: 15px;
+    transition: background-color 200ms ease-in-out;
+}
+
+.btn:hover {
+    background-color: #bebebe;
+}
+
 .controls__container {
     display: flex;
     flex-direction: column;
@@ -155,4 +234,9 @@ input[type=number] {
     display: flex;
     gap: 30px;
     justify-content: center;
+}
+
+.audioInfo__current-time {
+    min-width: 95px;
+    text-align: left;
 }

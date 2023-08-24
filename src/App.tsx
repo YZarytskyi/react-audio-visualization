@@ -10,6 +10,11 @@ import { formatRecordingTime } from "./helpers/formatRecordingTime.ts";
 
 import "./App.css";
 
+import microphoneIcon from "./assets/microphone.svg";
+import stopIcon from "./assets/stop.svg";
+import playIcon from "./assets/play.svg";
+import pauseIcon from "./assets/pause.svg";
+
 const AudioUpload: React.FC = () => {
   const [width, setWidth] = useState("100%");
   const [height, setHeight] = useState("200");
@@ -106,28 +111,54 @@ const AudioUpload: React.FC = () => {
 
       <div className="audioInfo__container">
         {isRecordingInProgress && (
-          <p>Time: {formatRecordingTime(recordingTime)}</p>
+          <p className="audioInfo__current-time">
+            Time: {formatRecordingTime(recordingTime)}
+          </p>
         )}
         {duration ? <p>Duration: {duration.toFixed(2)}s</p> : null}
       </div>
 
       <div className="buttons__container">
         {recordedBlob && (
-          <button className="btn__play" onClick={togglePauseResume}>
-            {isPausedRecordedAudio ? "Play" : "Pause"} Audio
+          <button className="btn__stop-recording" onClick={togglePauseResume}>
+            <img
+              src={isPausedRecordedAudio ? playIcon : pauseIcon}
+              alt="Pause"
+            />
           </button>
         )}
-        <button onClick={onClickStartRecording}>
-          {isRecordingInProgress && !isPausedRecording ? "Pause" : "Start"}{" "}
-          Recording
+        <button
+          className={`btn__start-recording ${
+            isRecordingInProgress && !isPausedRecording
+              ? "btn__start-recording-pause"
+              : ""
+          }`}
+          onClick={onClickStartRecording}
+        >
+          <img
+            src={
+              isRecordingInProgress && !isPausedRecording
+                ? pauseIcon
+                : microphoneIcon
+            }
+            alt="Microphone"
+          />
         </button>
         {isRecordingInProgress && (
-          <button onClick={stopRecording}>Stop Recording</button>
+          <button onClick={stopRecording} className="btn__stop-recording">
+            <img src={stopIcon} alt="Stop" />
+          </button>
+        )}
+        {(isRecordingInProgress || recordedBlob) && (
+          <button onClick={clearCanvas} className="btn">
+            Clear
+          </button>
         )}
         {recordedBlob && (
-          <button onClick={saveAudioFile}>Save Audio File</button>
+          <button onClick={saveAudioFile} className="btn">
+            Download Audio
+          </button>
         )}
-        <button onClick={clearCanvas}>Clear</button>
       </div>
 
       <h2 className="subtitle">Props</h2>
