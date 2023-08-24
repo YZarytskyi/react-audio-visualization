@@ -18,6 +18,7 @@ export const drawByLiveStream = ({
   secondaryBarColor,
   rounded,
   animateCurrentPick,
+  fullscreen,
 }: DrawByLiveStreamParams) => {
   const canvasData = initialCanvasSetup({ canvas, backgroundColor });
   if (!canvasData) return;
@@ -46,13 +47,13 @@ export const drawByLiveStream = ({
       }
 
       // quantity of picks enough for visualisation
-      if (picks.length > width / 2 / barWidth) {
+      if (picks.length > (fullscreen ? width : width / 2) / barWidth) {
         picks.pop();
       }
       picks.unshift(newPick);
     }
 
-    paintInitialLine();
+    !fullscreen && paintInitialLine();
 
     // animate current pick
     if (animateCurrentPick) {
@@ -60,7 +61,7 @@ export const drawByLiveStream = ({
         context,
         rounded,
         color: mainBarColor,
-        x: width / 2,
+        x: fullscreen ? width : width / 2,
         y: height - (maxPick / 260) * height,
         h: -height + (maxPick / 260) * height * 2,
         w: barWidth,
@@ -68,7 +69,7 @@ export const drawByLiveStream = ({
     }
 
     // picks visualisation
-    let x = width / 2 - index2.current;
+    let x = (fullscreen ? width : width / 2) - index2.current;
     picks.forEach((pick) => {
       if (pick) {
         paintLine({
@@ -85,7 +86,7 @@ export const drawByLiveStream = ({
     });
   } else {
     picks.length = 0;
-    paintInitialLine();
+    !fullscreen && paintInitialLine();
   }
 
   function paintInitialLine() {

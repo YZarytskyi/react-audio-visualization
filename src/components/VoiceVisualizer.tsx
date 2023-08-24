@@ -28,6 +28,7 @@ interface VoiceVisualiserProps {
   barWidth?: number;
   gap?: number;
   rounded?: number;
+  fullscreen?: boolean;
   animateCurrentPick?: boolean;
   onlyRecording?: boolean;
   canvasContainerClassName?: string;
@@ -58,6 +59,7 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
         bufferFromRecordedBlob,
         isProcessingRecordedAudio,
         isCleared,
+        clearCanvas,
         _handleTimeUpdate,
       },
       width = "100%",
@@ -70,6 +72,7 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
       gap = 1,
       rounded = 5,
       animateCurrentPick = true,
+      fullscreen = true,
       onlyRecording = false,
       canvasContainerClassName,
       isProgressIndicatorShown = true,
@@ -101,7 +104,8 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
     const unit = barWidth + gap * barWidth;
 
     const onResize = useCallback((target: HTMLDivElement) => {
-      setCanvasCurrentWidth(target.clientWidth);
+      const roundedWidth = Math.floor(target.clientWidth / 2) * 2;
+      setCanvasCurrentWidth(roundedWidth);
       setCanvasCurrentHeight(target.clientHeight);
     }, []);
 
@@ -151,23 +155,36 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
           barWidth,
           rounded,
           animateCurrentPick,
+          fullscreen,
         });
       }
 
       indexSpeedRef.current += 1;
-    }, [canvasRef.current, audioData, canvasCurrentWidth, canvasCurrentHeight]);
+    }, [
+      canvasRef.current,
+      audioData,
+      canvasCurrentWidth,
+      canvasCurrentHeight,
+      fullscreen,
+    ]);
 
     useEffect(() => {
       if (
-        onlyRecording ||
         !bufferFromRecordedBlob ||
         !canvasRef.current ||
         isRecordingInProgress
-      )
+      ) {
         return;
+      }
+
+      if (onlyRecording) {
+        clearCanvas();
+        return;
+      }
 
       const processBlob = () => {
         picksRef.current = [];
+
         setBarsData(
           getBarsData(
             bufferFromRecordedBlob,
@@ -178,6 +195,7 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
           ),
         );
       };
+
       void processBlob();
 
       canvasRef.current?.addEventListener("mousemove", setCurrentOffsetX);

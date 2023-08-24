@@ -47,6 +47,7 @@ export interface DrawByLiveStreamParams {
   secondaryBarColor: string;
   rounded: number;
   animateCurrentPick: boolean;
+  fullscreen: boolean;
 }
 
 export interface DrawByBlob {

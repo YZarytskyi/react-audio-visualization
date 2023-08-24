@@ -19,6 +19,10 @@ const selectStyles = (width: string): StylesConfig => ({
       border: "none",
     },
   }),
+  container: (provided) => ({
+    ...provided,
+    marginTop: "7px",
+  }),
   valueContainer: (provided) => ({
     ...provided,
     padding: "0 0 0 5px",
@@ -26,6 +30,7 @@ const selectStyles = (width: string): StylesConfig => ({
   singleValue: (provided) => ({
     ...provided,
     color: "white",
+    textAlign: "center",
   }),
   indicatorSeparator: () => ({
     display: "none",

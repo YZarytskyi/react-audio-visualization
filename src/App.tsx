@@ -1,4 +1,5 @@
 import React, { SetStateAction, useEffect, useState } from "react";
+import { Tooltip } from "react-tooltip";
 
 import CustomSelect, { SelectOptionsType } from "./components/CustomSelect.tsx";
 import { VoiceVisualiser } from "./components/VoiceVisualizer.tsx";
@@ -19,6 +20,8 @@ const AudioUpload: React.FC = () => {
   const [backgroundColor, setBackgroundColor] = useState("transparent");
   const [mainBarColor, setMainBarColor] = useState("#FFFFFF");
   const [secondaryBarColor, setSecondaryBarColor] = useState("#5e5e5e");
+  const [fullscreen, setFullscreen] = useState(false);
+  const [onlyRecording, setOnlyRecording] = useState(false);
   const [animateCurrentPick, setAnimateCurrentPick] = useState(true);
   const [isProgressIndicatorShown, setIsProgressIndicatorShown] =
     useState(true);
@@ -76,6 +79,8 @@ const AudioUpload: React.FC = () => {
 
   return (
     <div className="container">
+      <h1 className="title">react-voice-visualizer</h1>
+
       <VoiceVisualiser
         controls={recorderControls}
         ref={audioRef}
@@ -88,6 +93,8 @@ const AudioUpload: React.FC = () => {
         barWidth={barWidth}
         gap={gap}
         rounded={rounded}
+        fullscreen={fullscreen}
+        onlyRecording={onlyRecording}
         animateCurrentPick={animateCurrentPick}
         isProgressIndicatorShown={isProgressIndicatorShown}
         isProgressIndicatorTimeShown={isProgressIndicatorTimeShown}
@@ -96,12 +103,14 @@ const AudioUpload: React.FC = () => {
           isProgressIndicatorTimeOnHoverShown
         }
       />
+
       <div className="audioInfo__container">
         {isRecordingInProgress && (
           <p>Time: {formatRecordingTime(recordingTime)}</p>
         )}
         {duration ? <p>Duration: {duration.toFixed(2)}s</p> : null}
       </div>
+
       <div className="buttons__container">
         {recordedBlob && (
           <button className="btn__play" onClick={togglePauseResume}>
@@ -120,10 +129,53 @@ const AudioUpload: React.FC = () => {
         )}
         <button onClick={clearCanvas}>Clear</button>
       </div>
+
+      <h2 className="subtitle">Props</h2>
+
       <div className="controls__container">
         <div className="controls__selects">
           <label>
+            Width
+            <span
+              className="tooltip__info"
+              data-tooltip-id="tooltip-width"
+              data-tooltip-content="The width of the visualization canvas"
+            >
+              &#9432;
+            </span>
+            <Tooltip id="tooltip-width" />
+            <input
+              className="controls__input"
+              value={width}
+              onChange={(e) => setWidth(e.target.value)}
+            />
+          </label>
+          <label>
+            Height
+            <span
+              className="tooltip__info"
+              data-tooltip-id="tooltip-height"
+              data-tooltip-content="The height of the visualization canvas"
+            >
+              &#9432;
+            </span>
+            <Tooltip id="tooltip-height" />
+            <input
+              className="controls__input"
+              value={height}
+              onChange={(e) => setHeight(e.target.value)}
+            />
+          </label>
+          <label>
             Speed
+            <span
+              className="tooltip__info"
+              data-tooltip-id="tooltip-speed"
+              data-tooltip-content="The speed of the audio visualization animation (1 to 5, higher number is slower)"
+            >
+              &#9432;
+            </span>
+            <Tooltip id="tooltip-speed" />
             <CustomSelect
               options={generateOptionsForSelect([1, 2, 3, 4, 5])}
               defaultValue={generateOptionsForSelect([speed])}
@@ -133,6 +185,14 @@ const AudioUpload: React.FC = () => {
           </label>
           <label>
             BarWidth
+            <span
+              className="tooltip__info"
+              data-tooltip-id="tooltip-bar-width"
+              data-tooltip-content="The width of each audio wave bar"
+            >
+              &#9432;
+            </span>
+            <Tooltip id="tooltip-bar-width" />
             <CustomSelect
               options={generateOptionsForSelect([
                 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
@@ -144,6 +204,14 @@ const AudioUpload: React.FC = () => {
           </label>
           <label>
             Gap
+            <span
+              className="tooltip__info"
+              data-tooltip-id="tooltip-gap"
+              data-tooltip-content="The gap between each audio wave bar"
+            >
+              &#9432;
+            </span>
+            <Tooltip id="tooltip-gap" />
             <CustomSelect
               options={generateOptionsForSelect([
                 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
@@ -155,6 +223,14 @@ const AudioUpload: React.FC = () => {
           </label>
           <label>
             Rounded
+            <span
+              className="tooltip__info"
+              data-tooltip-id="tooltip-rounded"
+              data-tooltip-content="The border radius of the audio wave bars"
+            >
+              &#9432;
+            </span>
+            <Tooltip id="tooltip-rounded" />
             <CustomSelect
               options={generateOptionsForSelect([0, 1, 2, 3, 4, 5])}
               defaultValue={generateOptionsForSelect([rounded])}
@@ -162,10 +238,106 @@ const AudioUpload: React.FC = () => {
               onChange={(newValue) => onChangeSelect(newValue, setRounded)}
             />
           </label>
+          <label>
+            Fullscreen
+            <span
+              className="tooltip__info"
+              data-tooltip-id="tooltip-fullscreen"
+              data-tooltip-content="Whether the visualization should be displayed in fullscreen mode. It begins from the center by default"
+            >
+              &#9432;
+            </span>
+            <Tooltip id="tooltip-fullscreen" />
+            <CustomSelect
+              options={generateOptionsForSelect(["true", "false"])}
+              defaultValue={generateOptionsForSelect(["false"])}
+              width="100px"
+              onChange={(newValue) => onChangeSelect(newValue, setFullscreen)}
+            />
+          </label>
+          <label>
+            OnlyRecording
+            <span
+              className="tooltip__info"
+              data-tooltip-id="tooltip-only-recording"
+              data-tooltip-content="Whether to display an audio wave visualization after recording"
+            >
+              &#9432;
+            </span>
+            <Tooltip id="tooltip-only-recording" />
+            <CustomSelect
+              options={generateOptionsForSelect(["true", "false"])}
+              defaultValue={generateOptionsForSelect(["false"])}
+              width="100px"
+              onChange={(newValue) =>
+                onChangeSelect(newValue, setOnlyRecording)
+              }
+            />
+          </label>
         </div>
+
+        <div className="controls__inputs">
+          <label>
+            BackgroundColor
+            <span
+              className="tooltip__info"
+              data-tooltip-id="tooltip-background"
+              data-tooltip-content="The background color of the visualization canvas"
+            >
+              &#9432;
+            </span>
+            <Tooltip id="tooltip-background" />
+            <input
+              className="controls__input"
+              value={backgroundColor}
+              onChange={(e) => setBackgroundColor(e.target.value)}
+            />
+          </label>
+          <label>
+            MainBarColor
+            <span
+              className="tooltip__info"
+              data-tooltip-id="tooltip-main-color"
+              data-tooltip-content="The color of the main audio wave line"
+            >
+              &#9432;
+            </span>
+            <Tooltip id="tooltip-main-color" />
+            <input
+              className="controls__input"
+              value={mainBarColor}
+              onChange={(e) => setMainBarColor(e.target.value)}
+            />
+          </label>
+          <label>
+            SecondaryBarColor
+            <span
+              className="tooltip__info"
+              data-tooltip-id="tooltip-secondary-color"
+              data-tooltip-content="The secondary color of the audio wave line"
+            >
+              &#9432;
+            </span>
+            <Tooltip id="tooltip-secondary-color" />
+            <input
+              className="controls__input"
+              value={secondaryBarColor}
+              onChange={(e) => setSecondaryBarColor(e.target.value)}
+            />
+          </label>
+        </div>
+
         <div className="controls__selects">
           <label>
             AnimateCurrentPick
+            <span
+              className="tooltip__info"
+              data-tooltip-id="tooltip-animate-pick"
+              data-tooltip-content="Whether to animate the current pick in the visualization"
+            >
+              &#9432;
+            </span>
+            <Tooltip id="tooltip-animate-pick" />
             <CustomSelect
               options={generateOptionsForSelect(["true", "false"])}
               defaultValue={generateOptionsForSelect(["true"])}
@@ -177,6 +349,14 @@ const AudioUpload: React.FC = () => {
           </label>
           <label>
             IsProgressIndicatorShown
+            <span
+              className="tooltip__info"
+              data-tooltip-id="tooltip-progress-indicator"
+              data-tooltip-content="Whether to show the progress indicator after recording"
+            >
+              &#9432;
+            </span>
+            <Tooltip id="tooltip-progress-indicator" />
             <CustomSelect
               options={generateOptionsForSelect(["true", "false"])}
               defaultValue={generateOptionsForSelect(["true"])}
@@ -188,6 +368,14 @@ const AudioUpload: React.FC = () => {
           </label>
           <label>
             IsProgressIndicatorTimeShown
+            <span
+              className="tooltip__info"
+              data-tooltip-id="tooltip-progress-indicator-time"
+              data-tooltip-content="Whether to show the progress indicator time"
+            >
+              &#9432;
+            </span>
+            <Tooltip id="tooltip-progress-indicator-time" />
             <CustomSelect
               options={generateOptionsForSelect(["true", "false"])}
               defaultValue={generateOptionsForSelect(["true"])}
@@ -199,6 +387,14 @@ const AudioUpload: React.FC = () => {
           </label>
           <label>
             IsProgressIndicatorOnHoverShown
+            <span
+              className="tooltip__info"
+              data-tooltip-id="tooltip-progress-indicator-hover"
+              data-tooltip-content="Whether to show the progress indicator on hover"
+            >
+              &#9432;
+            </span>
+            <Tooltip id="tooltip-progress-indicator-hover" />
             <CustomSelect
               options={generateOptionsForSelect(["true", "false"])}
               defaultValue={generateOptionsForSelect(["true"])}
@@ -210,6 +406,14 @@ const AudioUpload: React.FC = () => {
           </label>
           <label>
             IsProgressIndicatorTimeOnHoverShown
+            <span
+              className="tooltip__info"
+              data-tooltip-id="tooltip-progress-indicator-time-hover"
+              data-tooltip-content="Whether to show the progress indicator time on hover"
+            >
+              &#9432;
+            </span>
+            <Tooltip id="tooltip-progress-indicator-time-hover" />
             <CustomSelect
               options={generateOptionsForSelect(["true", "false"])}
               defaultValue={generateOptionsForSelect(["true"])}
@@ -217,50 +421,6 @@ const AudioUpload: React.FC = () => {
               onChange={(newValue) =>
                 onChangeSelect(newValue, setIsProgressIndicatorTimeOnHoverShown)
               }
-            />
-          </label>
-        </div>
-        <div className="controls__inputs">
-          <label>
-            BackgroundColor
-            <input
-              className="controls__input"
-              value={backgroundColor}
-              onChange={(e) => setBackgroundColor(e.target.value)}
-            />
-          </label>
-          <label>
-            MainBarColor
-            <input
-              className="controls__input"
-              value={mainBarColor}
-              onChange={(e) => setMainBarColor(e.target.value)}
-            />
-          </label>
-          <label>
-            SecondaryBarColor
-            <input
-              className="controls__input"
-              value={secondaryBarColor}
-              onChange={(e) => setSecondaryBarColor(e.target.value)}
-            />
-          </label>
-        </div>
-        <div className="controls__inputs">
-          <label>
-            Width
-            <input
-              className="controls__input"
-              value={width}
-              onChange={(e) => setWidth(e.target.value)}
-            />
-          </label>
-          <label>
-            Height
-            <input
-              className="controls__input"
-              value={height}
-              onChange={(e) => setHeight(e.target.value)}
             />
           </label>
         </div>
