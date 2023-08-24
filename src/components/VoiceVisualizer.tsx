@@ -329,6 +329,13 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
           >
             Your browser does not support HTML5 Canvas.
           </canvas>
+          {(!isRecordingInProgress || isCleared) && !recordedBlob && (
+            <img
+              src={microphoneIcon}
+              alt="Microphone"
+              className="canvas__microphone-icon"
+            />
+          )}
           {isAudioProcessingTextShown && isProcessingRecordedAudio && (
             <p
               className={`canvas__audio-processing ${
@@ -406,40 +413,51 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
             </div>
 
             <div className="buttons__container">
-              {recordedBlob && (
+              {(isRecordingInProgress ||
+                recordedBlob ||
+                isProcessingRecordedAudio) && (
                 <button
                   className="btn__stop-recording"
-                  onClick={togglePauseResume}
+                  onClick={() => {
+                    isRecordingInProgress
+                      ? stopRecording()
+                      : togglePauseResume();
+                  }}
                 >
                   <img
-                    src={isPausedRecordedAudio ? playIcon : pauseIcon}
+                    src={
+                      isRecordingInProgress
+                        ? stopIcon
+                        : isPausedRecordedAudio
+                        ? playIcon
+                        : pauseIcon
+                    }
                     alt="Pause"
                   />
                 </button>
               )}
-              <button
-                className={`btn__start-recording ${
-                  isRecordingInProgress && !isPausedRecording
-                    ? "btn__start-recording-pause"
-                    : ""
-                }`}
-                onClick={onClickStartRecording}
-              >
-                <img
-                  src={
+              {!recordedBlob && (
+                <button
+                  className={`btn__start-recording ${
                     isRecordingInProgress && !isPausedRecording
-                      ? pauseIcon
-                      : microphoneIcon
-                  }
-                  alt="Microphone"
-                />
-              </button>
-              {isRecordingInProgress && (
-                <button onClick={stopRecording} className="btn__stop-recording">
-                  <img src={stopIcon} alt="Stop" />
+                      ? "btn__start-recording-pause"
+                      : ""
+                  }`}
+                  onClick={onClickStartRecording}
+                >
+                  <img
+                    src={
+                      isRecordingInProgress && !isPausedRecording
+                        ? pauseIcon
+                        : microphoneIcon
+                    }
+                    alt="Microphone"
+                  />
                 </button>
               )}
-              {(isRecordingInProgress || recordedBlob) && (
+              {(isRecordingInProgress ||
+                recordedBlob ||
+                isProcessingRecordedAudio) && (
                 <button onClick={clearCanvas} className="btn">
                   Clear
                 </button>

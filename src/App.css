@@ -172,6 +172,16 @@ input[type=number] {
     display: block;
 }
 
+.canvas__microphone-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: auto;
+    height: 60%;
+    max-height: 150px;
+    transform: translate(-50%, -50%);
+}
+
 .canvas__audio-processing {
     position: absolute;
     top: 50%;

@@ -28,7 +28,7 @@ const App: FC = () => {
   const [
     isLineFromCenterToRightShownBeforeRecording,
     setIsLineFromCenterToRightShownBeforeRecording,
-  ] = useState(true);
+  ] = useState(false);
   const [isProgressIndicatorShown, setIsProgressIndicatorShown] =
     useState(true);
   const [isProgressIndicatorTimeShown, setIsProgressIndicatorTimeShown] =
@@ -306,7 +306,7 @@ const App: FC = () => {
             <Tooltip className="tooltip__container" id="tooltip-download-btn" />
             <CustomSelect
               options={generateOptionsForSelect(["true", "false"])}
-              defaultValue={generateOptionsForSelect(["true"])}
+              defaultValue={generateOptionsForSelect(["false"])}
               width="100px"
               onChange={(newValue) =>
                 onChangeSelect(newValue, setIsDownloadAudioButtonShown)
@@ -323,7 +323,7 @@ const App: FC = () => {
             <Tooltip className="tooltip__container" id="tooltip-default-line" />
             <CustomSelect
               options={generateOptionsForSelect(["true", "false"])}
-              defaultValue={generateOptionsForSelect(["true"])}
+              defaultValue={generateOptionsForSelect(["false"])}
               width="100px"
               onChange={(newValue) =>
                 onChangeSelect(
