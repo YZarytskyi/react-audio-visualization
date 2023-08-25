@@ -303,10 +303,6 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
       setOffsetX(e.offsetX);
     };
 
-    const onClickStartRecording = () => {
-      isRecordingInProgress ? togglePauseResume() : startRecording();
-    };
-
     return (
       <>
         <div
@@ -332,25 +328,22 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
           >
             Your browser does not support HTML5 Canvas.
           </canvas>
-          {isDefaultUIShown &&
-            (!isRecordingInProgress || isCleared) &&
-            !recordedBlob &&
-            !isProcessingRecordedAudio && (
-              <>
-                <AudioWaveIcon color={defaultAudioWaveIconColor} />
-                <AudioWaveIcon color={defaultAudioWaveIconColor} reflect />
-                <button
-                  onClick={startRecording}
-                  className="canvas__microphone-btn"
-                >
-                  <MicrophoneIcon
-                    color={defaultMicrophoneIconColor}
-                    stroke={0.5}
-                    className="canvas__microphone-icon"
-                  />
-                </button>
-              </>
-            )}
+          {isDefaultUIShown && isCleared && (
+            <>
+              <AudioWaveIcon color={defaultAudioWaveIconColor} />
+              <AudioWaveIcon color={defaultAudioWaveIconColor} reflect />
+              <button
+                onClick={startRecording}
+                className="canvas__microphone-btn"
+              >
+                <MicrophoneIcon
+                  color={defaultMicrophoneIconColor}
+                  stroke={0.5}
+                  className="canvas__microphone-icon"
+                />
+              </button>
+            </>
+          )}
           {isAudioProcessingTextShown && isProcessingRecordedAudio && (
             <p
               className={`canvas__audio-processing ${
@@ -428,22 +421,21 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
             </div>
 
             <div className="buttons__container">
-              {(isRecordingInProgress ||
-                recordedBlob ||
-                isProcessingRecordedAudio) && (
+              {!isCleared && (
                 <button
-                  className="btn__stop-recording"
-                  onClick={() => {
-                    isRecordingInProgress
-                      ? stopRecording()
-                      : togglePauseResume();
-                  }}
+                  className={`btn__left ${
+                    isRecordingInProgress && isPausedRecording
+                      ? "btn__left-microphone"
+                      : ""
+                  }`}
+                  onClick={togglePauseResume}
                 >
                   <img
                     src={
-                      isRecordingInProgress
-                        ? stopIcon
-                        : isPausedRecordedAudio
+                      isRecordingInProgress && isPausedRecording
+                        ? microphoneIcon
+                        : isPausedRecordedAudio &&
+                          (recordedBlob || isProcessingRecordedAudio)
                         ? playIcon
                         : pauseIcon
                     }
@@ -451,28 +443,28 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
                   />
                 </button>
               )}
-              {!recordedBlob && (
+              {!recordedBlob && !isProcessingRecordedAudio && (
                 <button
-                  className={`btn__start-recording ${
-                    isRecordingInProgress && !isPausedRecording
-                      ? "btn__start-recording-pause"
+                  className={`btn__center ${
+                    isRecordingInProgress || isPausedRecording
+                      ? "btn__center-pause"
                       : ""
                   }`}
-                  onClick={onClickStartRecording}
+                  onClick={() => {
+                    isRecordingInProgress ? stopRecording() : startRecording();
+                  }}
                 >
                   <img
                     src={
-                      isRecordingInProgress && !isPausedRecording
-                        ? pauseIcon
+                      isRecordingInProgress || isPausedRecording
+                        ? stopIcon
                         : microphoneIcon
                     }
                     alt="Microphone"
                   />
                 </button>
               )}
-              {(isRecordingInProgress ||
-                recordedBlob ||
-                isProcessingRecordedAudio) && (
+              {!isCleared && (
                 <button onClick={clearCanvas} className="btn">
                   Clear
                 </button>

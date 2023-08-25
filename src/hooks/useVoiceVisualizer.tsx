@@ -20,7 +20,7 @@ export function useVoiceVisualizer(): Controls {
   const [audioSrc, setAudioSrc] = useState("");
   const [isPausedRecordedAudio, setIsPausedRecordedAudio] = useState(true);
   const [currentAudioTime, setCurrentAudioTime] = useState(0);
-  const [isCleared, setIsCleared] = useState(false);
+  const [isCleared, setIsCleared] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
