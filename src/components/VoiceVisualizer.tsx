@@ -18,11 +18,11 @@ import { formatRecordingTime } from "../helpers/formatRecordingTime.ts";
 import { BarsData, Controls, PickItem } from "../types/types.ts";
 
 import MicrophoneIcon from "../assets/MicrophoneIcon.tsx";
+import AudioWaveIcon from "../assets/AudioWaveIcon.tsx";
 import microphoneIcon from "../assets/microphone.svg";
 import playIcon from "../assets/play.svg";
 import pauseIcon from "../assets/pause.svg";
 import stopIcon from "../assets/stop.svg";
-import AudioWaveIcon from "../assets/AudioWaveIcon.tsx";
 
 interface VoiceVisualiserProps {
   controls: Controls;
@@ -335,12 +335,6 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
             <>
               <AudioWaveIcon color={mainBarColor} />
               <AudioWaveIcon color={mainBarColor} reflect />
-              <p
-                className="canvas__audio-default-text"
-                style={{ color: mainBarColor }}
-              >
-                Click to start recording
-              </p>
               <MicrophoneIcon
                 color={mainBarColor}
                 stroke={0.5}
