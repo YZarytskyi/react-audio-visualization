@@ -335,11 +335,16 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
             <>
               <AudioWaveIcon color={mainBarColor} />
               <AudioWaveIcon color={mainBarColor} reflect />
-              <MicrophoneIcon
-                color={mainBarColor}
-                stroke={0.5}
-                className="canvas__microphone-icon"
-              />
+              <button
+                onClick={startRecording}
+                className="canvas__microphone-btn"
+              >
+                <MicrophoneIcon
+                  color={mainBarColor}
+                  stroke={0.5}
+                  className="canvas__microphone-icon"
+                />
+              </button>
             </>
           )}
           {isAudioProcessingTextShown && isProcessingRecordedAudio && (
