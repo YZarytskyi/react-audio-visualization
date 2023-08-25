@@ -48,7 +48,6 @@ export interface DrawByLiveStreamParams {
   rounded: number;
   animateCurrentPick: boolean;
   fullscreen: boolean;
-  isLineFromCenterToRightShownBeforeRecording: boolean;
 }
 
 export interface DrawByBlob {
@@ -62,7 +61,6 @@ export interface DrawByBlob {
   currentAudioTime?: number;
   rounded: number;
   duration: number;
-  isCleared: boolean;
 }
 
 export interface PaintLineFromCenterToRightParams {

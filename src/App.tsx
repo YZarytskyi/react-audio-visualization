@@ -25,10 +25,7 @@ const App: FC = () => {
   const [fullscreen, setFullscreen] = useState(false);
   const [onlyRecording, setOnlyRecording] = useState(false);
   const [animateCurrentPick, setAnimateCurrentPick] = useState(true);
-  const [
-    isLineFromCenterToRightShownBeforeRecording,
-    setIsLineFromCenterToRightShownBeforeRecording,
-  ] = useState(false);
+  const [isDefaultUIShown, setisDefaultUIShown] = useState(false);
   const [isProgressIndicatorShown, setIsProgressIndicatorShown] =
     useState(true);
   const [isProgressIndicatorTimeShown, setIsProgressIndicatorTimeShown] =
@@ -86,9 +83,7 @@ const App: FC = () => {
         fullscreen={fullscreen}
         onlyRecording={onlyRecording}
         animateCurrentPick={animateCurrentPick}
-        isLineFromCenterToRightShownBeforeRecording={
-          isLineFromCenterToRightShownBeforeRecording
-        }
+        isDefaultUIShown={isDefaultUIShown}
         isProgressIndicatorShown={isProgressIndicatorShown}
         isProgressIndicatorTimeShown={isProgressIndicatorTimeShown}
         isProgressIndicatorOnHoverShown={isProgressIndicatorOnHoverShown}
@@ -316,9 +311,9 @@ const App: FC = () => {
           <label>
             <span
               data-tooltip-id="tooltip-default-line"
-              data-tooltip-content="Whether to show a line from center to right before recording"
+              data-tooltip-content="Whether to show a default UI on Canvas before recording. If you want to create your own UI, set it to false"
             >
-              isLineFromCenterToRightShownBeforeRecording &#9432;
+              isDefaultUIShown &#9432;
             </span>
             <Tooltip className="tooltip__container" id="tooltip-default-line" />
             <CustomSelect
@@ -326,10 +321,7 @@ const App: FC = () => {
               defaultValue={generateOptionsForSelect(["false"])}
               width="100px"
               onChange={(newValue) =>
-                onChangeSelect(
-                  newValue,
-                  setIsLineFromCenterToRightShownBeforeRecording,
-                )
+                onChangeSelect(newValue, setisDefaultUIShown)
               }
             />
           </label>
