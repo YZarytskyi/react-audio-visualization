@@ -17,9 +17,11 @@ import { formatRecordedAudioTime } from "../helpers/formatRecordedAudioTime.ts";
 import { formatRecordingTime } from "../helpers/formatRecordingTime.ts";
 import { BarsData, Controls, PickItem } from "../types/types.ts";
 
+import MicrophoneIcon from "../assets/MicrophoneIcon.tsx";
+import microphoneIcon from "../assets/microphone.svg";
+import audioWaveIcon from "../assets/audiowave.png";
 import playIcon from "../assets/play.svg";
 import pauseIcon from "../assets/pause.svg";
-import microphoneIcon from "../assets/microphone.svg";
 import stopIcon from "../assets/stop.svg";
 
 interface VoiceVisualiserProps {
@@ -330,12 +332,18 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
             Your browser does not support HTML5 Canvas.
           </canvas>
           {(!isRecordingInProgress || isCleared) && !recordedBlob && (
-            <img
-              src={microphoneIcon}
-              alt="Microphone"
-              className="canvas__microphone-icon"
-              style={{ filter: "invert(1)" }}
-            />
+            <>
+              <img
+                src={audioWaveIcon}
+                alt="Audio wave"
+                className="canvas__audio-wave-icon"
+              />
+              <MicrophoneIcon
+                color={mainBarColor}
+                stroke={0.5}
+                className="canvas__microphone-icon"
+              />
+            </>
           )}
           {isAudioProcessingTextShown && isProcessingRecordedAudio && (
             <p
@@ -356,7 +364,7 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
                 }`}
                 style={{
                   left: offsetX,
-                  display: recordedBlob ? "block" : "none",
+                  display: bufferFromRecordedBlob ? "block" : "none",
                 }}
               >
                 {isProgressIndicatorTimeOnHoverShown && (
