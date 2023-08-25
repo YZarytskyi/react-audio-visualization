@@ -41,6 +41,8 @@ interface VoiceVisualiserProps {
   animateCurrentPick?: boolean;
   onlyRecording?: boolean;
   isDefaultUIShown?: boolean;
+  defaultMicrophoneIconColor?: string;
+  defaultAudioWaveIconColor?: string;
   canvasContainerClassName?: string;
   isProgressIndicatorShown?: boolean;
   progressIndicatorClassName?: string;
@@ -94,6 +96,8 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
       fullscreen = true,
       onlyRecording = false,
       isDefaultUIShown = false,
+      defaultMicrophoneIconColor = mainBarColor,
+      defaultAudioWaveIconColor = mainBarColor,
       canvasContainerClassName,
       isProgressIndicatorShown = true,
       progressIndicatorClassName,
@@ -328,18 +332,19 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
           >
             Your browser does not support HTML5 Canvas.
           </canvas>
-          {(!isRecordingInProgress || isCleared) &&
+          {isDefaultUIShown &&
+            (!isRecordingInProgress || isCleared) &&
             !recordedBlob &&
             !isProcessingRecordedAudio && (
               <>
-                <AudioWaveIcon color={mainBarColor} />
-                <AudioWaveIcon color={mainBarColor} reflect />
+                <AudioWaveIcon color={defaultAudioWaveIconColor} />
+                <AudioWaveIcon color={defaultAudioWaveIconColor} reflect />
                 <button
                   onClick={startRecording}
                   className="canvas__microphone-btn"
                 >
                   <MicrophoneIcon
-                    color={mainBarColor}
+                    color={defaultMicrophoneIconColor}
                     stroke={0.5}
                     className="canvas__microphone-icon"
                   />
@@ -416,7 +421,7 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
             <div className="audioInfo__container">
               {isRecordingInProgress && (
                 <p className="audioInfo__current-time">
-                  Time: {formatRecordingTime(recordingTime)}
+                  {formatRecordingTime(recordingTime)}
                 </p>
               )}
               {duration ? <p>Duration: {duration.toFixed(2)}s</p> : null}

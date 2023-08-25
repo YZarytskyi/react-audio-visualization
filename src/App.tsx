@@ -1,4 +1,4 @@
-import { FC, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import { Tooltip } from "react-tooltip";
 
 import CustomSelect, { SelectOptionsType } from "./components/CustomSelect.tsx";
@@ -8,6 +8,16 @@ import { generateOptionsForSelect } from "./helpers/generateOptionsForSelect.ts"
 import { formatToInlineStyleValue } from "./helpers/formatToInlineStyleValue.ts";
 
 import "./App.css";
+
+function onChangeSelect<T>(
+  newValueObj: unknown,
+  setState: Dispatch<SetStateAction<T>>,
+) {
+  const newValue = (newValueObj as SelectOptionsType<T>).value;
+  setState(
+    (typeof newValue === "number" ? newValue : newValue === "true") as T,
+  );
+}
 
 const App: FC = () => {
   const [width, setWidth] = useState("100%");
@@ -25,7 +35,11 @@ const App: FC = () => {
   const [fullscreen, setFullscreen] = useState(false);
   const [onlyRecording, setOnlyRecording] = useState(false);
   const [animateCurrentPick, setAnimateCurrentPick] = useState(true);
-  const [isDefaultUIShown, setisDefaultUIShown] = useState(false);
+  const [isDefaultUIShown, setIsDefaultUIShown] = useState(true);
+  const [defaultAudioWaveIconColor, setDefaultAudioWaveIconColor] =
+    useState(mainBarColor);
+  const [defaultMicrophoneIconColor, setDefaultMicrophoneIconColor] =
+    useState(mainBarColor);
   const [isProgressIndicatorShown, setIsProgressIndicatorShown] =
     useState(true);
   const [isProgressIndicatorTimeShown, setIsProgressIndicatorTimeShown] =
@@ -52,16 +66,6 @@ const App: FC = () => {
     console.log(error);
   }, [error]);
 
-  function onChangeSelect<T>(
-    newValueObj: unknown,
-    setState: React.Dispatch<SetStateAction<T>>,
-  ) {
-    const newValue = (newValueObj as SelectOptionsType<T>).value;
-    setState(
-      (typeof newValue === "number" ? newValue : newValue === "true") as T,
-    );
-  }
-
   return (
     <div className="container">
       <h1 className="title">react-voice-visualizer</h1>
@@ -84,6 +88,8 @@ const App: FC = () => {
         onlyRecording={onlyRecording}
         animateCurrentPick={animateCurrentPick}
         isDefaultUIShown={isDefaultUIShown}
+        defaultAudioWaveIconColor={defaultAudioWaveIconColor}
+        defaultMicrophoneIconColor={defaultMicrophoneIconColor}
         isProgressIndicatorShown={isProgressIndicatorShown}
         isProgressIndicatorTimeShown={isProgressIndicatorTimeShown}
         isProgressIndicatorOnHoverShown={isProgressIndicatorOnHoverShown}
@@ -223,54 +229,6 @@ const App: FC = () => {
               }
             />
           </label>
-        </div>
-
-        <div className="controls__inputs">
-          <label>
-            <span
-              data-tooltip-id="tooltip-background"
-              data-tooltip-content="The background color of the visualization canvas"
-            >
-              backgroundColor &#9432;
-            </span>
-            <Tooltip className="tooltip__container" id="tooltip-background" />
-            <input
-              className="controls__input"
-              value={backgroundColor}
-              onChange={(e) => setBackgroundColor(e.target.value)}
-            />
-          </label>
-          <label>
-            <span
-              data-tooltip-id="tooltip-main-color"
-              data-tooltip-content="The color of the main audio wave line"
-            >
-              mainBarColor &#9432;
-            </span>
-            <Tooltip className="tooltip__container" id="tooltip-main-color" />
-            <input
-              className="controls__input"
-              value={mainBarColor}
-              onChange={(e) => setMainBarColor(e.target.value)}
-            />
-          </label>
-          <label>
-            <span
-              data-tooltip-id="tooltip-secondary-color"
-              data-tooltip-content="The secondary color of the audio wave line"
-            >
-              secondaryBarColor &#9432;
-            </span>
-            <Tooltip
-              className="tooltip__container"
-              id="tooltip-secondary-color"
-            />
-            <input
-              className="controls__input"
-              value={secondaryBarColor}
-              onChange={(e) => setSecondaryBarColor(e.target.value)}
-            />
-          </label>
           <label>
             <span
               data-tooltip-id="tooltip-control-panel"
@@ -308,21 +266,107 @@ const App: FC = () => {
               }
             />
           </label>
+        </div>
+
+        <div className="controls__inputs">
           <label>
             <span
-              data-tooltip-id="tooltip-default-line"
+              data-tooltip-id="tooltip-background"
+              data-tooltip-content="The background color of the visualization canvas"
+            >
+              backgroundColor &#9432;
+            </span>
+            <Tooltip className="tooltip__container" id="tooltip-background" />
+            <input
+              className="controls__input"
+              value={backgroundColor}
+              onChange={(e) => setBackgroundColor(e.target.value)}
+            />
+          </label>
+          <label>
+            <span
+              data-tooltip-id="tooltip-main-color"
+              data-tooltip-content="The color of the main audio wave line"
+            >
+              mainBarColor &#9432;
+            </span>
+            <Tooltip className="tooltip__container" id="tooltip-main-color" />
+            <input
+              className="controls__input"
+              value={mainBarColor}
+              onChange={(e) => {
+                setDefaultAudioWaveIconColor(e.target.value);
+                setDefaultMicrophoneIconColor(e.target.value);
+                setMainBarColor(e.target.value);
+              }}
+            />
+          </label>
+          <label>
+            <span
+              data-tooltip-id="tooltip-secondary-color"
+              data-tooltip-content="The secondary color of the audio wave line"
+            >
+              secondaryBarColor &#9432;
+            </span>
+            <Tooltip
+              className="tooltip__container"
+              id="tooltip-secondary-color"
+            />
+            <input
+              className="controls__input"
+              value={secondaryBarColor}
+              onChange={(e) => setSecondaryBarColor(e.target.value)}
+            />
+          </label>
+          <label>
+            <span
+              data-tooltip-id="tooltip-default-ui"
               data-tooltip-content="Whether to show a default UI on Canvas before recording. If you want to create your own UI, set it to false"
             >
               isDefaultUIShown &#9432;
             </span>
-            <Tooltip className="tooltip__container" id="tooltip-default-line" />
+            <Tooltip className="tooltip__container" id="tooltip-default-ui" />
             <CustomSelect
               options={generateOptionsForSelect(["true", "false"])}
-              defaultValue={generateOptionsForSelect(["false"])}
+              defaultValue={generateOptionsForSelect(["true"])}
               width="100px"
               onChange={(newValue) =>
-                onChangeSelect(newValue, setisDefaultUIShown)
+                onChangeSelect(newValue, setIsDefaultUIShown)
               }
+            />
+          </label>
+          <label>
+            <span
+              data-tooltip-id="tooltip-default-wave-icon"
+              data-tooltip-content="The color of default audio wave icon which is shown before recording. Prop isDefaultUIShown must be true"
+            >
+              defaultAudioWaveIconColor &#9432;
+            </span>
+            <Tooltip
+              className="tooltip__container"
+              id="tooltip-default-wave-icon"
+            />
+            <input
+              className="controls__input"
+              value={defaultAudioWaveIconColor}
+              onChange={(e) => setDefaultAudioWaveIconColor(e.target.value)}
+            />
+          </label>
+          <label>
+            <span
+              data-tooltip-id="tooltip-default-mic-icon"
+              data-tooltip-content="The color of default microphone icon which is shown before recording. Prop isDefaultUIShown must be true"
+            >
+              defaultMicrophoneIconColor &#9432;
+            </span>
+            <Tooltip
+              className="tooltip__container"
+              id="tooltip-default-mic-icon"
+            />
+            <input
+              className="controls__input"
+              value={defaultMicrophoneIconColor}
+              onChange={(e) => setDefaultMicrophoneIconColor(e.target.value)}
             />
           </label>
         </div>
