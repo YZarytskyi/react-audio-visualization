@@ -331,22 +331,24 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
           >
             Your browser does not support HTML5 Canvas.
           </canvas>
-          {(!isRecordingInProgress || isCleared) && !recordedBlob && (
-            <>
-              <AudioWaveIcon color={mainBarColor} />
-              <AudioWaveIcon color={mainBarColor} reflect />
-              <button
-                onClick={startRecording}
-                className="canvas__microphone-btn"
-              >
-                <MicrophoneIcon
-                  color={mainBarColor}
-                  stroke={0.5}
-                  className="canvas__microphone-icon"
-                />
-              </button>
-            </>
-          )}
+          {(!isRecordingInProgress || isCleared) &&
+            !recordedBlob &&
+            !isProcessingRecordedAudio && (
+              <>
+                <AudioWaveIcon color={mainBarColor} />
+                <AudioWaveIcon color={mainBarColor} reflect />
+                <button
+                  onClick={startRecording}
+                  className="canvas__microphone-btn"
+                >
+                  <MicrophoneIcon
+                    color={mainBarColor}
+                    stroke={0.5}
+                    className="canvas__microphone-icon"
+                  />
+                </button>
+              </>
+            )}
           {isAudioProcessingTextShown && isProcessingRecordedAudio && (
             <p
               className={`canvas__audio-processing ${
