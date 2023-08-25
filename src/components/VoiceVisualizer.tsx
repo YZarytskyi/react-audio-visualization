@@ -19,10 +19,10 @@ import { BarsData, Controls, PickItem } from "../types/types.ts";
 
 import MicrophoneIcon from "../assets/MicrophoneIcon.tsx";
 import microphoneIcon from "../assets/microphone.svg";
-import audioWaveIcon from "../assets/audiowave.png";
 import playIcon from "../assets/play.svg";
 import pauseIcon from "../assets/pause.svg";
 import stopIcon from "../assets/stop.svg";
+import AudioWaveIcon from "../assets/AudioWaveIcon.tsx";
 
 interface VoiceVisualiserProps {
   controls: Controls;
@@ -333,11 +333,14 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
           </canvas>
           {(!isRecordingInProgress || isCleared) && !recordedBlob && (
             <>
-              <img
-                src={audioWaveIcon}
-                alt="Audio wave"
-                className="canvas__audio-wave-icon"
-              />
+              <AudioWaveIcon color={mainBarColor} />
+              <AudioWaveIcon color={mainBarColor} reflect />
+              <p
+                className="canvas__audio-default-text"
+                style={{ color: mainBarColor }}
+              >
+                Click to start recording
+              </p>
               <MicrophoneIcon
                 color={mainBarColor}
                 stroke={0.5}

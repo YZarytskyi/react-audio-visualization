@@ -166,6 +166,7 @@ input[type=number] {
 .canvas__container {
     position: relative;
     margin: 0 auto;
+    overflow: hidden;
 }
 
 .canvas__container canvas {
@@ -177,19 +178,40 @@ input[type=number] {
     top: 50%;
     left: 50%;
     width: auto;
-    height: 60%;
-    max-height: 150px;
-    transform: translate(-50%, -50%);
+    height: 50%;
+    max-height: 60%;
+    transform: translate(-50%, -60%);
 }
 
 .canvas__audio-wave-icon {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: auto;
-    height: 60%;
-    max-height: 189px;
-    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 300px;
+    height: auto;
+    max-height: 40%;
+    transform: translate(-110%, -60%) scale(-1);
+}
+
+.canvas__audio-wave-icon2 {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 90%;
+    max-width: 300px;
+    height: auto;
+    max-height: 40%;
+    transform: translate(10%, -60%);
+}
+
+.canvas__audio-default-text {
+    position: absolute;
+    bottom: 5%;
+    left: 50%;
+    width: 100%;
+    margin: 0;
+    transform: translateX(-50%);
 }
 
 .canvas__audio-processing {
