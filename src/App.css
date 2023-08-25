@@ -233,9 +233,10 @@ input[type=number] {
 
 .progressIndicatorHovered__time {
     position: absolute;
-    top: 2%;
+    top: 3%;
     left: 1px;
     width: fit-content;
+    margin: 0;
     padding: 0 7px;
     font-size: 12px;
     border-radius: 0 4px 4px 0;
@@ -260,11 +261,12 @@ input[type=number] {
 
 .progressIndicator__time {
     position: absolute;
-    top: 2%;
+    top: 3%;
     left: 1px;
     width: fit-content;
     box-sizing: border-box;
     min-width: 41px;
+    margin: 0;
     padding: 0 7px;
     font-size: 12px;
     border-radius: 0 4px 4px 0;
