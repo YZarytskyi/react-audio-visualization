@@ -54,6 +54,7 @@ interface VoiceVisualiserProps {
   progressIndicatorTimeOnHoverClassName?: string;
   isAudioProcessingTextShown?: boolean;
   audioProcessingTextClassName?: string;
+  controlButtonsClassName?: string;
 }
 
 type Ref = HTMLAudioElement | null;
@@ -109,6 +110,7 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
       progressIndicatorTimeOnHoverClassName,
       isAudioProcessingTextShown = true,
       audioProcessingTextClassName,
+      controlButtonsClassName,
     },
     ref,
   ) => {
@@ -465,12 +467,18 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
                 </button>
               )}
               {!isCleared && (
-                <button onClick={clearCanvas} className="btn">
+                <button
+                  onClick={clearCanvas}
+                  className={`btn ${controlButtonsClassName ?? ""}`}
+                >
                   Clear
                 </button>
               )}
               {isDownloadAudioButtonShown && recordedBlob && (
-                <button onClick={saveAudioFile} className="btn">
+                <button
+                  onClick={saveAudioFile}
+                  className={`btn ${controlButtonsClassName ?? ""}`}
+                >
                   Download Audio
                 </button>
               )}
