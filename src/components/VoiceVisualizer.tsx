@@ -121,13 +121,17 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
     const [isRecordedCanvasHovered, setIsRecordedCanvasHovered] =
       useState(false);
 
+    const formattedSpeed = Math.trunc(speed);
+    const formattedBarWidth = Math.trunc(barWidth);
+    const formattedGap = Math.trunc(gap);
+
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const picksRef = useRef<Array<PickItem | null>>([]);
-    const indexSpeedRef = useRef(speed);
-    const indexRef = useRef(barWidth);
+    const indexSpeedRef = useRef(formattedSpeed);
+    const indexRef = useRef(formattedBarWidth);
     const index2Ref = useRef(0);
 
-    const unit = barWidth + gap * barWidth;
+    const unit = formattedBarWidth + formattedGap * formattedBarWidth;
 
     const onResize = useCallback((target: HTMLDivElement) => {
       const roundedWidth = Math.floor(target.clientWidth / 2) * 2;
@@ -175,7 +179,7 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
     useEffect(() => {
       if (!canvasRef.current) return;
 
-      if (indexSpeedRef.current >= speed || !audioData.length) {
+      if (indexSpeedRef.current >= formattedSpeed || !audioData.length) {
         indexSpeedRef.current = 0;
 
         drawByLiveStream({
@@ -189,7 +193,7 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
           backgroundColor,
           mainBarColor,
           secondaryBarColor,
-          barWidth,
+          barWidth: formattedBarWidth,
           rounded,
           animateCurrentPick,
           fullscreen,
@@ -228,8 +232,8 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
             bufferFromRecordedBlob,
             canvasCurrentHeight,
             canvasCurrentWidth,
-            barWidth,
-            gap,
+            formattedBarWidth,
+            formattedGap,
           ),
         );
       };
@@ -260,8 +264,8 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
       drawByBlob({
         barsData,
         canvas: canvasRef.current,
-        barWidth,
-        gap,
+        barWidth: formattedBarWidth,
+        gap: formattedGap,
         backgroundColor,
         mainBarColor,
         secondaryBarColor,

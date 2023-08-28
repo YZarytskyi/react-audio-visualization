@@ -231,6 +231,12 @@ input[type=number] {
     background-color: rgba(133, 133, 133, 0.6);
 }
 
+@media screen and (max-width: 768px) {
+    .progressIndicatorHovered {
+        display: none;
+    }
+}
+
 .progressIndicatorHovered__time {
     position: absolute;
     top: 3%;

@@ -139,7 +139,7 @@ const App: FC = () => {
             </span>
             <Tooltip className="tooltip__container" id="tooltip-speed" />
             <CustomSelect
-              options={generateOptionsForSelect([1, 2, 3, 4, 5])}
+              options={generateOptionsForSelect([1, 2, 3, 4, 5, 6])}
               defaultValue={generateOptionsForSelect([speed])}
               width="80px"
               onChange={(newValue) => onChangeSelect(newValue, setSpeed)}
