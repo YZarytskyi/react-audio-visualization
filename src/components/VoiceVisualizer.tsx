@@ -5,6 +5,7 @@ import {
   useRef,
   useCallback,
   MutableRefObject,
+  MouseEventHandler,
 } from "react";
 
 import useResizeObserver from "../hooks/useResizeObserver.tsx";
@@ -114,7 +115,7 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
     },
     ref,
   ) => {
-    const [offsetX, setOffsetX] = useState(0);
+    const [hoveredOffsetX, setHoveredOffsetX] = useState(0);
     const [barsData, setBarsData] = useState<BarsData[]>([]);
     const [canvasCurrentWidth, setCanvasCurrentWidth] = useState(0);
     const [canvasCurrentHeight, setCanvasCurrentHeight] = useState(0);
@@ -240,10 +241,16 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
 
       void processBlob();
 
-      canvasRef.current?.addEventListener("mousemove", setCurrentOffsetX);
+      canvasRef.current?.addEventListener(
+        "mousemove",
+        setCurrentHoveredOffsetX,
+      );
 
       return () => {
-        canvasRef.current?.removeEventListener("mousemove", setCurrentOffsetX);
+        canvasRef.current?.removeEventListener(
+          "mousemove",
+          setCurrentHoveredOffsetX,
+        );
       };
     }, [
       bufferFromRecordedBlob,
@@ -305,10 +312,22 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
       setIsRecordedCanvasHovered(false);
     };
 
-    const setCurrentOffsetX = (e: MouseEvent) => {
-      setOffsetX(e.offsetX);
+    const setCurrentHoveredOffsetX = (e: MouseEvent) => {
+      setHoveredOffsetX(e.offsetX);
     };
 
+    const handleCurrentRecordedAudioTime: MouseEventHandler<
+      HTMLCanvasElement
+    > = (e) => {
+      if (
+        (ref as MutableRefObject<HTMLAudioElement>)?.current &&
+        canvasRef.current
+      ) {
+        (ref as MutableRefObject<HTMLAudioElement>).current.currentTime =
+          (duration / canvasCurrentWidth) *
+          (e.clientX - canvasRef.current.getBoundingClientRect().left);
+      }
+    };
     return (
       <>
         <div
@@ -323,14 +342,7 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
             ref={canvasRef}
             width={canvasCurrentWidth}
             height={canvasCurrentHeight}
-            onClick={() => {
-              if ((ref as MutableRefObject<HTMLAudioElement>)?.current) {
-                (
-                  ref as MutableRefObject<HTMLAudioElement>
-                ).current.currentTime =
-                  (duration / canvasCurrentWidth) * offsetX;
-              }
-            }}
+            onClick={handleCurrentRecordedAudioTime}
           >
             Your browser does not support HTML5 Canvas.
           </canvas>
@@ -368,22 +380,25 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
                   progressIndicatorOnHoverClassName ?? ""
                 }`}
                 style={{
-                  left: offsetX,
-                  display: bufferFromRecordedBlob ? "block" : "none",
+                  left: hoveredOffsetX,
+                  display:
+                    bufferFromRecordedBlob && canvasCurrentWidth > 768
+                      ? "block"
+                      : "none",
                 }}
               >
                 {isProgressIndicatorTimeOnHoverShown && (
                   <p
                     className={`progressIndicatorHovered__time 
                     ${
-                      canvasCurrentWidth - offsetX < 70
+                      canvasCurrentWidth - hoveredOffsetX < 70
                         ? "progressIndicatorHovered__time-left"
                         : ""
                     } 
                     ${progressIndicatorTimeOnHoverClassName ?? ""}`}
                   >
                     {formatRecordedAudioTime(
-                      (duration / canvasCurrentWidth) * offsetX,
+                      (duration / canvasCurrentWidth) * hoveredOffsetX,
                     )}
                   </p>
                 )}
