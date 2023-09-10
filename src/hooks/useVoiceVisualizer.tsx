@@ -4,14 +4,16 @@ import { getFileExtensionFromMimeType } from "../helpers/getFileExtensionFromMim
 
 import { Controls } from "../types/types.ts";
 
-export function useVoiceVisualizer(): Controls {
+export function useVoiceVisualizer(audioBlob?: Blob): Controls {
   const [isRecordingInProgress, setIsRecordingInProgress] = useState(false);
   const [isPausedRecording, setIsPausedRecording] = useState(false);
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
   const [audioData, setAudioData] = useState<Uint8Array>(new Uint8Array(0));
   const [isProcessingRecordedAudio, setIsProcessingRecordedAudio] =
     useState(false);
-  const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
+  const [recordedBlob, setRecordedBlob] = useState<Blob | null>(
+    audioBlob || null,
+  );
   const [bufferFromRecordedBlob, setBufferFromRecordedBlob] =
     useState<AudioBuffer | null>(null);
   const [recordingTime, setRecordingTime] = useState(0);
@@ -31,54 +33,6 @@ export function useVoiceVisualizer(): Controls {
   const rafRecordingRef = useRef<number | null>(null);
   const rafCurrentTimeUpdateRef = useRef<number | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  useEffect(() => {
-    if (!isRecordingInProgress) return;
-
-    if (audioContextRef.current && isPausedRecording) return;
-    navigator.mediaDevices
-      .getUserMedia({ audio: true })
-      .then((stream) => {
-        setError(null);
-        setAudioStream(stream);
-        audioContextRef.current = new window.AudioContext();
-        analyserRef.current = audioContextRef.current.createAnalyser();
-        dataArrayRef.current = new Uint8Array(
-          analyserRef.current.frequencyBinCount,
-        );
-        sourceRef.current =
-          audioContextRef.current.createMediaStreamSource(stream);
-        sourceRef.current.connect(analyserRef.current);
-        mediaRecorderRef.current = new MediaRecorder(stream);
-        mediaRecorderRef.current.addEventListener(
-          "dataavailable",
-          handleDataAvailable,
-        );
-        mediaRecorderRef.current.start();
-
-        recordingFrame();
-      })
-      .catch((error) => {
-        console.error("Error starting audio recording:", error);
-        if (error instanceof Error) {
-          setError(error);
-          return;
-        }
-        setError(new Error("Error starting audio recording"));
-      });
-
-    return () => {
-      if (rafRecordingRef.current)
-        cancelAnimationFrame(rafRecordingRef.current);
-      if (sourceRef.current) sourceRef.current.disconnect();
-      if (
-        audioContextRef.current &&
-        audioContextRef.current.state !== "closed"
-      ) {
-        void audioContextRef.current.close();
-      }
-    };
-  }, [isRecordingInProgress]);
 
   useEffect(() => {
     if (!isRecordingInProgress || isPausedRecording) return;
@@ -126,9 +80,23 @@ export function useVoiceVisualizer(): Controls {
   }, [recordedBlob]);
 
   useEffect(() => {
+    if (error) {
+      clearCanvas();
+      return;
+    }
+  }, [error]);
+
+  useEffect(() => {
     return () => {
       if (rafCurrentTimeUpdateRef.current) {
         cancelAnimationFrame(rafCurrentTimeUpdateRef.current);
+      }
+      if (sourceRef.current) sourceRef.current.disconnect();
+      if (
+        audioContextRef.current &&
+        audioContextRef.current.state !== "closed"
+      ) {
+        void audioContextRef.current.close();
       }
       if (rafRecordingRef.current) {
         cancelAnimationFrame(rafRecordingRef.current);
@@ -144,6 +112,42 @@ export function useVoiceVisualizer(): Controls {
       }
     };
   }, []);
+
+  const getUserMedia = () => {
+    navigator.mediaDevices
+      .getUserMedia({ audio: true })
+      .then((stream) => {
+        clearCanvas();
+        setIsCleared(false);
+        setPrevTime(performance.now());
+        setIsRecordingInProgress(true);
+        setAudioStream(stream);
+        audioContextRef.current = new window.AudioContext();
+        analyserRef.current = audioContextRef.current.createAnalyser();
+        dataArrayRef.current = new Uint8Array(
+          analyserRef.current.frequencyBinCount,
+        );
+        sourceRef.current =
+          audioContextRef.current.createMediaStreamSource(stream);
+        sourceRef.current.connect(analyserRef.current);
+        mediaRecorderRef.current = new MediaRecorder(stream);
+        mediaRecorderRef.current.addEventListener(
+          "dataavailable",
+          handleDataAvailable,
+        );
+        mediaRecorderRef.current.start();
+
+        recordingFrame();
+      })
+      .catch((error) => {
+        console.error("Error starting audio recording:", error);
+        if (error instanceof Error) {
+          setError(error);
+          return;
+        }
+        setError(new Error("Error starting audio recording"));
+      });
+  };
 
   const recordingFrame = () => {
     analyserRef.current!.getByteTimeDomainData(dataArrayRef.current!);
@@ -164,17 +168,20 @@ export function useVoiceVisualizer(): Controls {
 
   const startRecording = () => {
     if (isRecordingInProgress) return;
-
-    clearCanvas();
-    setIsCleared(false);
-    setPrevTime(performance.now());
-    setIsRecordingInProgress(true);
+    getUserMedia();
   };
 
   const stopRecording = () => {
     if (!isRecordingInProgress) return;
 
     setIsProcessingRecordedAudio(true);
+
+    if (rafRecordingRef.current) cancelAnimationFrame(rafRecordingRef.current);
+    if (sourceRef.current) sourceRef.current.disconnect();
+    if (audioContextRef.current && audioContextRef.current.state !== "closed") {
+      void audioContextRef.current.close();
+    }
+
     audioStream?.getTracks().forEach((track) => track.stop());
     setIsRecordingInProgress(false);
     setRecordingTime(0);

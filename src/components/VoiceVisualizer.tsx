@@ -316,7 +316,7 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
       setHoveredOffsetX(e.offsetX);
     };
 
-    const handleCurrentRecordedAudioTime: MouseEventHandler<
+    const handleRecordedAudioCurrentTime: MouseEventHandler<
       HTMLCanvasElement
     > = (e) => {
       if (
@@ -328,6 +328,7 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
           (e.clientX - canvasRef.current.getBoundingClientRect().left);
       }
     };
+
     return (
       <>
         <div
@@ -342,7 +343,7 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
             ref={canvasRef}
             width={canvasCurrentWidth}
             height={canvasCurrentHeight}
-            onClick={handleCurrentRecordedAudioTime}
+            onClick={handleRecordedAudioCurrentTime}
           >
             Your browser does not support HTML5 Canvas.
           </canvas>

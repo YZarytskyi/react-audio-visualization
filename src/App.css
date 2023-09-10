@@ -16,12 +16,12 @@
 }
 
 .buttons__container {
-    display: flex;
+    display: grid;
     justify-content: center;
     align-items: center;
+    grid-auto-flow: column;
     column-gap: 20px;
     row-gap: 15px;
-    flex-wrap: wrap;
     margin-bottom: 40px;
 }
 
