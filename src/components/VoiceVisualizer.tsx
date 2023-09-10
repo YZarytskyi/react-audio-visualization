@@ -443,12 +443,10 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
             </div>
 
             <div className="buttons__container">
-              {!isCleared && (
+              {isRecordingInProgress && (
                 <button
                   className={`btn__left ${
-                    isRecordingInProgress && isPausedRecording
-                      ? "btn__left-microphone"
-                      : ""
+                    isPausedRecording ? "btn__left-microphone" : ""
                   }`}
                   onClick={togglePauseResume}
                 >
@@ -461,6 +459,19 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
                         ? playIcon
                         : pauseIcon
                     }
+                    alt="Pause"
+                  />
+                </button>
+              )}
+              {!isCleared && (
+                <button
+                  className={`btn__left ${
+                    isRecordingInProgress ? "visually-hidden" : ""
+                  }`}
+                  onClick={togglePauseResume}
+                >
+                  <img
+                    src={!isPausedRecordedAudio ? pauseIcon : playIcon}
                     alt="Pause"
                   />
                 </button>
