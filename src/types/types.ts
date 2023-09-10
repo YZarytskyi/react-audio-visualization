@@ -17,6 +17,7 @@ export interface Controls {
   isPausedRecordedAudio: boolean;
   isProcessingRecordedAudio: boolean;
   isCleared: boolean;
+  setPreloadedAudioBlob: (blob: unknown) => void;
   recordedBlob: Blob | null;
   bufferFromRecordedBlob: AudioBuffer | null;
   startRecording: () => void;

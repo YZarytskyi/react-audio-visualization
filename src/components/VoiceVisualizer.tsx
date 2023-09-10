@@ -24,6 +24,7 @@ import microphoneIcon from "../assets/microphone.svg";
 import playIcon from "../assets/play.svg";
 import pauseIcon from "../assets/pause.svg";
 import stopIcon from "../assets/stop.svg";
+import { formatDurationTime } from "../helpers/formatDurationTime.ts";
 
 interface VoiceVisualiserProps {
   controls: Controls;
@@ -439,7 +440,9 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
                   {formatRecordingTime(recordingTime)}
                 </p>
               )}
-              {duration ? <p>Duration: {duration.toFixed(2)}s</p> : null}
+              {duration ? (
+                <p>Duration: {formatDurationTime(duration)}</p>
+              ) : null}
             </div>
 
             <div className="buttons__container">
@@ -471,8 +474,8 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
                   onClick={togglePauseResume}
                 >
                   <img
-                    src={!isPausedRecordedAudio ? pauseIcon : playIcon}
-                    alt="Pause"
+                    src={isPausedRecordedAudio ? playIcon : pauseIcon}
+                    alt={isPausedRecordedAudio ? "Play" : "Pause"}
                   />
                 </button>
               )}

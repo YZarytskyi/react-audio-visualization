@@ -295,6 +295,33 @@ input[type=number] {
     text-align: left;
 }
 
+.controls__input-file-container {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.controls__input-file {
+    width: 120px;
+    height: 45px;
+    box-sizing: border-box;
+    padding: 0 10px;
+    display: block;
+    font-size: 15px;
+    border-radius: 4px;
+    text-align: center;
+    border: none;
+    outline: none;
+    background-color: #f1f1f1;
+    color: black;
+    transition: 250ms;
+}
+
+.controls__input-file:hover {
+    background-color: #b4b3b3;
+}
+
 .visually-hidden {
     position: absolute;
     width: 1px;

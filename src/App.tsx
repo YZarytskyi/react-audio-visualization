@@ -1,4 +1,12 @@
-import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
+import {
+  ChangeEventHandler,
+  Dispatch,
+  FC,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Tooltip } from "react-tooltip";
 
 import CustomSelect, { SelectOptionsType } from "./components/CustomSelect.tsx";
@@ -51,6 +59,8 @@ const App: FC = () => {
     setIsProgressIndicatorTimeOnHoverShown,
   ] = useState(true);
 
+  const hiddenFileInputRef = useRef<HTMLInputElement>(null);
+
   const recorderControls = useVoiceVisualizer();
   const { recordedBlob, error, audioRef } = recorderControls;
 
@@ -65,6 +75,22 @@ const App: FC = () => {
 
     console.log(error);
   }, [error]);
+
+  const handleClickInputFile = () => {
+    (hiddenFileInputRef.current as HTMLInputElement).click();
+  };
+
+  const handleInputFileChange: ChangeEventHandler<HTMLInputElement> = (
+    event,
+  ) => {
+    const selectedFile = event.target.files?.[0];
+    if (selectedFile) {
+      const blob = new Blob([selectedFile], {
+        type: selectedFile.type,
+      });
+      recorderControls.setPreloadedAudioBlob(blob);
+    }
+  };
 
   return (
     <div className="container">
@@ -96,6 +122,19 @@ const App: FC = () => {
         isProgressIndicatorTimeOnHoverShown={
           isProgressIndicatorTimeOnHoverShown
         }
+      />
+
+      <div className="controls__input-file-container">
+        <button className="controls__input-file" onClick={handleClickInputFile}>
+          Upload Audio
+        </button>
+        <p>{hiddenFileInputRef.current?.files?.[0]?.name}</p>
+      </div>
+      <input
+        ref={hiddenFileInputRef}
+        type="file"
+        onChange={handleInputFileChange}
+        style={{ display: "none" }}
       />
 
       <h2 className="subtitle">Props</h2>

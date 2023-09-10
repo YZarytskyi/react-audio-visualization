@@ -194,6 +194,18 @@ export function useVoiceVisualizer(audioBlob?: Blob): Controls {
     }
   };
 
+  const setPreloadedAudioBlob = (blob: unknown) => {
+    if (blob instanceof Blob) {
+      clearCanvas();
+      setIsCleared(false);
+      setIsProcessingRecordedAudio(true);
+      setIsRecordingInProgress(false);
+      setRecordingTime(0);
+      setIsPausedRecording(false);
+      setRecordedBlob(blob);
+    }
+  };
+
   const clearCanvas = () => {
     if (rafRecordingRef.current) {
       cancelAnimationFrame(rafRecordingRef.current);
@@ -301,6 +313,7 @@ export function useVoiceVisualizer(audioBlob?: Blob): Controls {
     isPausedRecordedAudio,
     bufferFromRecordedBlob,
     isCleared,
+    setPreloadedAudioBlob,
     startRecording,
     togglePauseResume,
     stopRecording,
