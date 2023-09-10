@@ -175,7 +175,9 @@ export function useVoiceVisualizer(audioBlob?: Blob): Controls {
     if (!isRecordingInProgress) return;
 
     setIsProcessingRecordedAudio(true);
-
+    setIsRecordingInProgress(false);
+    setRecordingTime(0);
+    setIsPausedRecording(false);
     if (rafRecordingRef.current) cancelAnimationFrame(rafRecordingRef.current);
     if (sourceRef.current) sourceRef.current.disconnect();
     if (audioContextRef.current && audioContextRef.current.state !== "closed") {
@@ -183,9 +185,6 @@ export function useVoiceVisualizer(audioBlob?: Blob): Controls {
     }
 
     audioStream?.getTracks().forEach((track) => track.stop());
-    setIsRecordingInProgress(false);
-    setRecordingTime(0);
-    setIsPausedRecording(false);
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current.stop();
       mediaRecorderRef.current.removeEventListener(

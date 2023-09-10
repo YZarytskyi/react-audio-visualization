@@ -456,8 +456,8 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
                     src={
                       isRecordingInProgress && isPausedRecording
                         ? microphoneIcon
-                        : isPausedRecordedAudio &&
-                          (recordedBlob || isProcessingRecordedAudio)
+                        : isProcessingRecordedAudio ||
+                          (isPausedRecordedAudio && recordedBlob)
                         ? playIcon
                         : pauseIcon
                     }
