@@ -25,6 +25,16 @@ import playIcon from "../assets/play.svg";
 import pauseIcon from "../assets/pause.svg";
 import stopIcon from "../assets/stop.svg";
 
+function preloadImage(src: string) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = function () {
+      resolve(img);
+    };
+    img.src = src;
+  });
+}
+
 interface VoiceVisualiserProps {
   controls: Controls;
   height?: string | number;
@@ -142,6 +152,20 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
     }, []);
 
     const canvasContainerRef = useResizeObserver(onResize);
+
+    useEffect(() => {
+      preloadImages();
+
+      async function preloadImages() {
+        const preloadSrcList = [playIcon, stopIcon, pauseIcon];
+        const imagesPromiseList: Promise<unknown>[] = [];
+        for (const i of preloadSrcList) {
+          imagesPromiseList.push(preloadImage(i));
+        }
+
+        await Promise.all(imagesPromiseList);
+      }
+    }, []);
 
     useEffect(() => {
       if (isRecordingInProgress || recordedBlob) {
