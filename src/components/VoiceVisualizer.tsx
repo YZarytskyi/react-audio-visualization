@@ -467,24 +467,23 @@ export const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
             </div>
 
             <div className="buttons__container">
-              {!isCleared && (
+              {isRecordingInProgress && (
                 <button
                   className={`btn__left ${
-                    isRecordingInProgress && isPausedRecording
-                      ? "btn__left-microphone"
-                      : ""
+                    isPausedRecording ? "btn__left-microphone" : ""
                   }`}
                   onClick={togglePauseResume}
                 >
                   <img
-                    src={
-                      isRecordingInProgress && isPausedRecording
-                        ? microphoneIcon
-                        : isProcessingRecordedAudio ||
-                          (isPausedRecordedAudio && recordedBlob)
-                        ? playIcon
-                        : pauseIcon
-                    }
+                    src={isPausedRecording ? microphoneIcon : pauseIcon}
+                    alt="Pause"
+                  />
+                </button>
+              )}
+              {(isProcessingRecordedAudio || recordedBlob) && (
+                <button className="btn__left" onClick={togglePauseResume}>
+                  <img
+                    src={isPausedRecordedAudio ? playIcon : pauseIcon}
                     alt="Pause"
                   />
                 </button>
