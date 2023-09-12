@@ -1,28 +1,12 @@
-import {
-  ChangeEventHandler,
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { ChangeEventHandler, useEffect, useRef, useState } from "react";
 import { useVoiceVisualizer, VoiceVisualizer } from "react-voice-visualizer";
 import { Tooltip } from "react-tooltip";
 
-import CustomSelect, { SelectOptionsType } from "./components/CustomSelect.tsx";
+import CustomSelect from "./components/CustomSelect.tsx";
+import { onChangeSelect } from "./helpers/onChangeSelect.ts";
 import { generateOptionsForSelect } from "./helpers/generateOptionsForSelect.ts";
 
 import "./App.css";
-
-function onChangeSelect<T>(
-  newValueObj: unknown,
-  setState: Dispatch<SetStateAction<T>>,
-) {
-  const newValue = (newValueObj as SelectOptionsType<T>).value;
-  setState(
-    (typeof newValue === "number" ? newValue : newValue === "true") as T,
-  );
-}
 
 const App = () => {
   const [width, setWidth] = useState("100%");

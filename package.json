@@ -1,7 +1,6 @@
 {
-  "name": "react-voice-visualization",
-  "private": true,
-  "version": "1.0.0",
+  "name": "react-voice-visualizer",
+  "private": false,
   "author": "Yurii Zarytskyi",
   "description": "A library for audio recording and visualization in React applications.",
   "keywords": [
