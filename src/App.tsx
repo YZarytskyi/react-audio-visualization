@@ -2,7 +2,7 @@ import { ChangeEventHandler, useEffect, useRef, useState } from "react";
 import { useVoiceVisualizer, VoiceVisualizer } from "react-voice-visualizer";
 import { Tooltip } from "react-tooltip";
 
-import CustomSelect from "./components/CustomSelect.tsx";
+import CustomSelect, { SelectOptionsType } from "./components/CustomSelect.tsx";
 import { onChangeSelect } from "./helpers/onChangeSelect.ts";
 import { generateOptionsForSelect } from "./helpers/generateOptionsForSelect.ts";
 
@@ -259,9 +259,14 @@ const App = () => {
               options={generateOptionsForSelect(["true", "false"])}
               defaultValue={generateOptionsForSelect(["false"])}
               width="100px"
-              onChange={(newValue) =>
-                onChangeSelect(newValue, setOnlyRecording)
-              }
+              onChange={(newValue) => {
+                onChangeSelect(newValue, setOnlyRecording);
+                const newValueObj = newValue as SelectOptionsType<string>;
+                setIsProgressIndicatorShown(newValueObj.value !== "true");
+                setIsProgressIndicatorOnHoverShown(
+                  newValueObj.value !== "true",
+                );
+              }}
             />
           </label>
           <label>
