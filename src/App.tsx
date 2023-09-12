@@ -1,19 +1,16 @@
 import {
   ChangeEventHandler,
   Dispatch,
-  FC,
   SetStateAction,
   useEffect,
   useRef,
   useState,
 } from "react";
+import { useVoiceVisualizer, VoiceVisualizer } from "react-voice-visualizer";
 import { Tooltip } from "react-tooltip";
 
 import CustomSelect, { SelectOptionsType } from "./components/CustomSelect.tsx";
-import { VoiceVisualiser } from "./components/VoiceVisualizer.tsx";
-import { useVoiceVisualizer } from "./hooks/useVoiceVisualizer.tsx";
 import { generateOptionsForSelect } from "./helpers/generateOptionsForSelect.ts";
-import { formatToInlineStyleValue } from "./helpers/formatToInlineStyleValue.ts";
 
 import "./App.css";
 
@@ -27,7 +24,7 @@ function onChangeSelect<T>(
   );
 }
 
-const App: FC = () => {
+const App = () => {
   const [width, setWidth] = useState("100%");
   const [height, setHeight] = useState("200");
   const [speed, setSpeed] = useState(3);
@@ -58,6 +55,7 @@ const App: FC = () => {
     isProgressIndicatorTimeOnHoverShown,
     setIsProgressIndicatorTimeOnHoverShown,
   ] = useState(true);
+  const [audioFileName, setAudioFileName] = useState("");
 
   const hiddenFileInputRef = useRef<HTMLInputElement>(null);
 
@@ -65,7 +63,10 @@ const App: FC = () => {
   const { recordedBlob, error, audioRef } = recorderControls;
 
   useEffect(() => {
-    if (!recordedBlob) return;
+    if (!recordedBlob) {
+      setAudioFileName("");
+      return;
+    }
 
     console.log(recordedBlob);
   }, [recordedBlob, error]);
@@ -77,7 +78,10 @@ const App: FC = () => {
   }, [error]);
 
   const handleClickInputFile = () => {
-    (hiddenFileInputRef.current as HTMLInputElement).click();
+    if (!hiddenFileInputRef.current) return;
+
+    hiddenFileInputRef.current.value = "";
+    hiddenFileInputRef.current.click();
   };
 
   const handleInputFileChange: ChangeEventHandler<HTMLInputElement> = (
@@ -88,6 +92,7 @@ const App: FC = () => {
       const blob = new Blob([selectedFile], {
         type: selectedFile.type,
       });
+      setAudioFileName(selectedFile.name);
       recorderControls.setPreloadedAudioBlob(blob);
     }
   };
@@ -96,11 +101,11 @@ const App: FC = () => {
     <div className="container">
       <h1 className="title">react-voice-visualizer</h1>
 
-      <VoiceVisualiser
+      <VoiceVisualizer
         controls={recorderControls}
         ref={audioRef}
-        width={formatToInlineStyleValue(width)}
-        height={formatToInlineStyleValue(height)}
+        width={width}
+        height={height}
         speed={speed}
         backgroundColor={backgroundColor}
         mainBarColor={mainBarColor}
@@ -128,7 +133,14 @@ const App: FC = () => {
         <button className="controls__input-file" onClick={handleClickInputFile}>
           Upload Audio
         </button>
-        <p>{hiddenFileInputRef.current?.files?.[0]?.name}</p>
+        <span
+          data-tooltip-id="tooltip-upload-audio"
+          data-tooltip-content="You can use the setPreloadedAudioBlob function to load any audio data. Pass your audio data as a Blob to this function: setPreloadedAudioBlob(audioBlob)"
+        >
+          &#9432;
+        </span>
+        <Tooltip className="tooltip__container" id="tooltip-upload-audio" />
+        <p>{audioFileName}</p>
       </div>
       <input
         ref={hiddenFileInputRef}

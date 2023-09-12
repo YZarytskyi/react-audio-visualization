@@ -313,9 +313,13 @@ input[type=number] {
 
 .controls__input-file-container {
     display: flex;
-    gap: 20px;
+    gap: 15px;
     align-items: center;
     margin-bottom: 20px;
+}
+
+.controls__input-file-container p {
+    margin: 0;
 }
 
 .controls__input-file {
