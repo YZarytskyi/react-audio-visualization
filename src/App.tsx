@@ -49,7 +49,6 @@ const App = () => {
   useEffect(() => {
     if (!recordedBlob) {
       setAudioFileName("");
-      return;
     }
   }, [recordedBlob, error]);
 
