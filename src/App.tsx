@@ -51,14 +51,12 @@ const App = () => {
       setAudioFileName("");
       return;
     }
-
-    console.log(recordedBlob);
   }, [recordedBlob, error]);
 
   useEffect(() => {
     if (!error) return;
 
-    console.log(error);
+    console.error(error);
   }, [error]);
 
   const handleClickInputFile = () => {
