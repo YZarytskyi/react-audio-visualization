@@ -50,7 +50,7 @@ const App = () => {
     if (!recordedBlob) {
       setAudioFileName("");
     }
-  }, [recordedBlob, error]);
+  }, [recordedBlob]);
 
   useEffect(() => {
     if (!error) return;
@@ -73,6 +73,7 @@ const App = () => {
       const blob = new Blob([selectedFile], {
         type: selectedFile.type,
       });
+
       setAudioFileName(selectedFile.name);
       recorderControls.setPreloadedAudioBlob(blob);
     }
