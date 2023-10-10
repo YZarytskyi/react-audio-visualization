@@ -127,6 +127,7 @@ const App = () => {
       <input
         ref={hiddenFileInputRef}
         type="file"
+        accept="audio/*"
         onChange={handleInputFileChange}
         style={{ display: "none" }}
       />
