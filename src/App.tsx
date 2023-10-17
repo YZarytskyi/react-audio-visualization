@@ -84,8 +84,8 @@ const App = () => {
       <h1 className="title">react-voice-visualizer</h1>
 
       <VoiceVisualizer
-        controls={recorderControls}
         ref={audioRef}
+        controls={recorderControls}
         width={width}
         height={height}
         speed={speed}
