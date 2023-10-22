@@ -1,4 +1,4 @@
-import { ChangeEventHandler, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useVoiceVisualizer, VoiceVisualizer } from "react-voice-visualizer";
 import { Tooltip } from "react-tooltip";
 
@@ -39,18 +39,18 @@ const App = () => {
     isProgressIndicatorTimeOnHoverShown,
     setIsProgressIndicatorTimeOnHoverShown,
   ] = useState(true);
-  const [audioFileName, setAudioFileName] = useState("");
+  // const [audioFileName, setAudioFileName] = useState("");
 
-  const hiddenFileInputRef = useRef<HTMLInputElement>(null);
+  // const hiddenFileInputRef = useRef<HTMLInputElement>(null);
 
   const recorderControls = useVoiceVisualizer();
-  const { recordedBlob, error, audioRef } = recorderControls;
+  const { error, audioRef } = recorderControls;
 
-  useEffect(() => {
-    if (!recordedBlob) {
-      setAudioFileName("");
-    }
-  }, [recordedBlob]);
+  // useEffect(() => {
+  //   if (!recordedBlob) {
+  //     setAudioFileName("");
+  //   }
+  // }, [recordedBlob]);
 
   useEffect(() => {
     if (!error) return;
@@ -58,26 +58,26 @@ const App = () => {
     console.error(error);
   }, [error]);
 
-  const handleClickInputFile = () => {
-    if (!hiddenFileInputRef.current) return;
+  // const handleClickInputFile = () => {
+  //   if (!hiddenFileInputRef.current) return;
+  //
+  //   hiddenFileInputRef.current.value = "";
+  //   hiddenFileInputRef.current.click();
+  // };
 
-    hiddenFileInputRef.current.value = "";
-    hiddenFileInputRef.current.click();
-  };
-
-  const handleInputFileChange: ChangeEventHandler<HTMLInputElement> = (
-    event,
-  ) => {
-    const selectedFile = event.target.files?.[0];
-    if (selectedFile) {
-      const blob = new Blob([selectedFile], {
-        type: selectedFile.type,
-      });
-
-      setAudioFileName(selectedFile.name);
-      recorderControls.setPreloadedAudioBlob(blob);
-    }
-  };
+  // const handleInputFileChange: ChangeEventHandler<HTMLInputElement> = (
+  //   event,
+  // ) => {
+  //   const selectedFile = event.target.files?.[0];
+  //   if (selectedFile) {
+  //     const blob = new Blob([selectedFile], {
+  //       type: selectedFile.type,
+  //     });
+  //
+  //     setAudioFileName(selectedFile.name);
+  //     recorderControls.setPreloadedAudioBlob(blob);
+  //   }
+  // };
 
   return (
     <div className="container">
@@ -111,26 +111,26 @@ const App = () => {
         }
       />
 
-      <div className="controls__input-file-container">
-        <button className="controls__input-file" onClick={handleClickInputFile}>
-          Upload Audio
-        </button>
-        <span
-          data-tooltip-id="tooltip-upload-audio"
-          data-tooltip-content="You can use the setPreloadedAudioBlob function to load any audio data. Pass your audio data as a Blob to this function: setPreloadedAudioBlob(audioBlob)"
-        >
-          &#9432;
-        </span>
-        <Tooltip className="tooltip__container" id="tooltip-upload-audio" />
-        <p>{audioFileName}</p>
-      </div>
-      <input
-        ref={hiddenFileInputRef}
-        type="file"
-        accept="audio/*"
-        onChange={handleInputFileChange}
-        style={{ display: "none" }}
-      />
+      {/*<div className="controls__input-file-container">*/}
+      {/*  <button className="controls__input-file" onClick={handleClickInputFile}>*/}
+      {/*    Upload Audio*/}
+      {/*  </button>*/}
+      {/*  <span*/}
+      {/*    data-tooltip-id="tooltip-upload-audio"*/}
+      {/*    data-tooltip-content="You can use the setPreloadedAudioBlob function to load any audio data. Pass your audio data as a Blob to this function: setPreloadedAudioBlob(audioBlob)"*/}
+      {/*  >*/}
+      {/*    &#9432;*/}
+      {/*  </span>*/}
+      {/*  <Tooltip className="tooltip__container" id="tooltip-upload-audio" />*/}
+      {/*  <p>{audioFileName}</p>*/}
+      {/*</div>*/}
+      {/*<input*/}
+      {/*  ref={hiddenFileInputRef}*/}
+      {/*  type="file"*/}
+      {/*  accept="audio/*"*/}
+      {/*  onChange={handleInputFileChange}*/}
+      {/*  style={{ display: "none" }}*/}
+      {/*/>*/}
 
       <h2 className="subtitle">Props</h2>
 
