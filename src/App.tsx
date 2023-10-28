@@ -40,7 +40,6 @@ const App = () => {
     setIsProgressIndicatorTimeOnHoverShown,
   ] = useState(true);
   // const [audioFileName, setAudioFileName] = useState("");
-
   // const hiddenFileInputRef = useRef<HTMLInputElement>(null);
 
   const recorderControls = useVoiceVisualizer();
