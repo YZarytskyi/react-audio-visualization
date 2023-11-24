@@ -8,6 +8,8 @@ import { generateOptionsForSelect } from "./helpers/generateOptionsForSelect.ts"
 
 import "./App.css";
 
+import gitHubIcon from "/github.svg";
+
 const App = () => {
   const [width, setWidth] = useState("100%");
   const [height, setHeight] = useState("200");
@@ -39,17 +41,9 @@ const App = () => {
     isProgressIndicatorTimeOnHoverShown,
     setIsProgressIndicatorTimeOnHoverShown,
   ] = useState(true);
-  // const [audioFileName, setAudioFileName] = useState("");
-  // const hiddenFileInputRef = useRef<HTMLInputElement>(null);
 
   const recorderControls = useVoiceVisualizer();
   const { error, audioRef } = recorderControls;
-
-  // useEffect(() => {
-  //   if (!recordedBlob) {
-  //     setAudioFileName("");
-  //   }
-  // }, [recordedBlob]);
 
   useEffect(() => {
     if (!error) return;
@@ -57,30 +51,24 @@ const App = () => {
     console.error(error);
   }, [error]);
 
-  // const handleClickInputFile = () => {
-  //   if (!hiddenFileInputRef.current) return;
-  //
-  //   hiddenFileInputRef.current.value = "";
-  //   hiddenFileInputRef.current.click();
-  // };
-
-  // const handleInputFileChange: ChangeEventHandler<HTMLInputElement> = (
-  //   event,
-  // ) => {
-  //   const selectedFile = event.target.files?.[0];
-  //   if (selectedFile) {
-  //     const blob = new Blob([selectedFile], {
-  //       type: selectedFile.type,
-  //     });
-  //
-  //     setAudioFileName(selectedFile.name);
-  //     recorderControls.setPreloadedAudioBlob(blob);
-  //   }
-  // };
-
   return (
     <div className="container">
-      <h1 className="title">react-voice-visualizer</h1>
+      <div className="title__container">
+        <a
+          href="https://github.com/YZarytskyi/react-audio-visualization"
+          target="_blank"
+          rel="noreferrer nofollow noopener"
+          className="title__github-link"
+          data-tooltip-id="tooltip-github-link"
+          data-tooltip-content="GitHub"
+          data-tooltip-place="right"
+        >
+          <img src={gitHubIcon} alt="GitHub" />
+        </a>
+        <Tooltip id="tooltip-github-link" />
+
+        <h1 className="title__text">react-voice-visualizer</h1>
+      </div>
 
       <VoiceVisualizer
         ref={audioRef}
@@ -109,27 +97,6 @@ const App = () => {
           isProgressIndicatorTimeOnHoverShown
         }
       />
-
-      {/*<div className="controls__input-file-container">*/}
-      {/*  <button className="controls__input-file" onClick={handleClickInputFile}>*/}
-      {/*    Upload Audio*/}
-      {/*  </button>*/}
-      {/*  <span*/}
-      {/*    data-tooltip-id="tooltip-upload-audio"*/}
-      {/*    data-tooltip-content="You can use the setPreloadedAudioBlob function to load any audio data. Pass your audio data as a Blob to this function: setPreloadedAudioBlob(audioBlob)"*/}
-      {/*  >*/}
-      {/*    &#9432;*/}
-      {/*  </span>*/}
-      {/*  <Tooltip className="tooltip__container" id="tooltip-upload-audio" />*/}
-      {/*  <p>{audioFileName}</p>*/}
-      {/*</div>*/}
-      {/*<input*/}
-      {/*  ref={hiddenFileInputRef}*/}
-      {/*  type="file"*/}
-      {/*  accept="audio/*"*/}
-      {/*  onChange={handleInputFileChange}*/}
-      {/*  style={{ display: "none" }}*/}
-      {/*/>*/}
 
       <h2 className="subtitle">Props</h2>
 
