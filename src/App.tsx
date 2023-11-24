@@ -9,6 +9,7 @@ import { generateOptionsForSelect } from "./helpers/generateOptionsForSelect.ts"
 import "./App.css";
 
 import gitHubIcon from "/github.svg";
+import npmIcon from "/npm.svg";
 
 const App = () => {
   const [width, setWidth] = useState("100%");
@@ -54,18 +55,28 @@ const App = () => {
   return (
     <div className="container">
       <div className="title__container">
-        <a
-          href="https://github.com/YZarytskyi/react-audio-visualization"
-          target="_blank"
-          rel="noreferrer nofollow noopener"
-          className="title__github-link"
-          data-tooltip-id="tooltip-github-link"
-          data-tooltip-content="GitHub"
-          data-tooltip-place="right"
-        >
-          <img src={gitHubIcon} alt="GitHub" />
-        </a>
-        <Tooltip id="tooltip-github-link" />
+        <div className="title__links">
+          <a
+            href="https://github.com/YZarytskyi/react-audio-visualization"
+            target="_blank"
+            rel="noreferrer nofollow noopener"
+            className="title__github-link"
+            data-tooltip-id="tooltip-github-link"
+            data-tooltip-content="GitHub"
+          >
+            <img src={gitHubIcon} alt="GitHub" />
+          </a>
+          <Tooltip id="tooltip-github-link" />
+
+          <a
+            href="https://www.npmjs.com/package/react-voice-visualizer"
+            target="_blank"
+            rel="noreferrer nofollow noopener"
+            className="title__npm-link"
+          >
+            <img src={npmIcon} alt="Npm" />
+          </a>
+        </div>
 
         <h1 className="title__text">react-voice-visualizer</h1>
       </div>
