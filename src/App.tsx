@@ -61,12 +61,9 @@ const App = () => {
             target="_blank"
             rel="noreferrer nofollow noopener"
             className="title__github-link"
-            data-tooltip-id="tooltip-github-link"
-            data-tooltip-content="GitHub"
           >
             <img src={gitHubIcon} alt="GitHub" />
           </a>
-          <Tooltip id="tooltip-github-link" />
 
           <a
             href="https://www.npmjs.com/package/react-voice-visualizer"
